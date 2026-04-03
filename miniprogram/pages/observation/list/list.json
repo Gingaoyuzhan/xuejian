@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "status-tag": "/components/status-tag/status-tag"
+  },
+  "navigationBarTitleText": "听课记录",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

@@ -1,0 +1,16 @@
+<!--components/user-card/user-card.wxml-->
+<view class="user-card user-card--{{size}}" bindtap="handleTap">
+  <view class="user-avatar">
+    <image
+      class="avatar-img"
+      src="{{user.avatar || '/images/default-avatar.png'}}"
+      mode="aspectFill"
+    />
+  </view>
+  <view class="user-info">
+    <view class="user-name">{{user.name || '未知用户'}}</view>
+    <view class="user-role" wx:if="{{roleText}}">{{roleText}}</view>
+    <view class="user-department" wx:if="{{showDetail && user.department}}">{{user.department}}</view>
+    <view class="user-phone" wx:if="{{showDetail && user.phone}}">{{user.phone}}</view>
+  </view>
+</view>

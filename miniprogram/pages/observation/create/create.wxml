@@ -1,0 +1,172 @@
+<!--pages/observation/create/create.wxml-->
+<view class="create-page">
+  <view class="page-intro">
+    <view class="intro-title">听课评课表</view>
+    <view class="intro-desc">按纸质表格样式填写听课记录，并在下方上传现场照片。</view>
+  </view>
+
+  <view class="paper-sheet">
+    <view class="sheet-title">表一：听课基本信息</view>
+
+    <view class="sheet-table">
+      <view class="sheet-row">
+        <view class="sheet-cell label wide">听课时间</view>
+        <picker
+          class="sheet-cell value flex-cell"
+          mode="date"
+          value="{{formData.observationDate}}"
+          start="2024-01-01"
+          end="2030-12-31"
+          bindchange="onDateChange"
+        >
+          <view class="date-inline {{formData.observationDate ? '' : 'placeholder'}}">
+            <text>{{dateDisplay.year}}</text>
+            <text class="date-unit">年</text>
+            <text>{{dateDisplay.month}}</text>
+            <text class="date-unit">月</text>
+            <text>{{dateDisplay.day}}</text>
+            <text class="date-unit">日</text>
+            <text class="date-weekday">{{dateDisplay.weekday}}</text>
+          </view>
+        </picker>
+        <view class="sheet-cell label">节次</view>
+        <view class="sheet-cell value fixed-cell">
+          <view class="lesson-inline">
+            <text>第</text>
+            <input
+              class="lesson-input"
+              type="number"
+              placeholder="节"
+              value="{{formData.lessonNumber}}"
+              data-field="lessonNumber"
+              bindinput="onInputChange"
+            />
+            <text>节</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="sheet-row multi-column">
+        <view class="sheet-cell label">姓名</view>
+        <view class="sheet-cell value grow">
+          <input
+            class="cell-input"
+            placeholder="请输入教师姓名"
+            value="{{formData.teacherName}}"
+            data-field="teacherName"
+            bindinput="onInputChange"
+          />
+        </view>
+        <view class="sheet-cell label">课程名称</view>
+        <view class="sheet-cell value grow">
+          <input
+            class="cell-input"
+            placeholder="请输入课程名称"
+            value="{{formData.courseName}}"
+            data-field="courseName"
+            bindinput="onInputChange"
+          />
+        </view>
+        <view class="sheet-cell label">授课地点</view>
+        <view class="sheet-cell value grow">
+          <input
+            class="cell-input"
+            placeholder="请输入授课地点"
+            value="{{formData.location}}"
+            data-field="location"
+            bindinput="onInputChange"
+          />
+        </view>
+      </view>
+
+      <view class="sheet-row multi-column">
+        <view class="sheet-cell label">职称</view>
+        <view class="sheet-cell value grow">
+          <input
+            class="cell-input"
+            placeholder="请输入职称"
+            value="{{formData.teacherTitle}}"
+            data-field="teacherTitle"
+            bindinput="onInputChange"
+          />
+        </view>
+        <view class="sheet-cell label">单位</view>
+        <view class="sheet-cell value grow">
+          <input
+            class="cell-input"
+            placeholder="请输入单位"
+            value="{{formData.unitName}}"
+            data-field="unitName"
+            bindinput="onInputChange"
+          />
+        </view>
+        <view class="sheet-cell label">授课班级</view>
+        <view class="sheet-cell value grow">
+          <input
+            class="cell-input"
+            placeholder="请输入授课班级"
+            value="{{formData.classInfo}}"
+            data-field="classInfo"
+            bindinput="onInputChange"
+          />
+        </view>
+      </view>
+    </view>
+
+    <view class="sheet-section-title">教学过程</view>
+    <textarea
+      class="sheet-textarea"
+      placeholder="请填写本节课的教学过程记录"
+      value="{{formData.teachingProcess}}"
+      data-field="teachingProcess"
+      bindinput="onInputChange"
+      maxlength="3000"
+      auto-height
+      show-confirm-bar="{{false}}"
+    />
+  </view>
+
+  <view class="paper-sheet">
+    <view class="sheet-title">表二：评课记录</view>
+
+    <view class="sheet-section-title">教学效果</view>
+    <textarea
+      class="sheet-textarea"
+      placeholder="请填写课堂教学效果、学生参与度、目标达成等情况"
+      value="{{formData.teachingEffect}}"
+      data-field="teachingEffect"
+      bindinput="onInputChange"
+      maxlength="3000"
+      auto-height
+      show-confirm-bar="{{false}}"
+    />
+
+    <view class="sheet-section-title">评析及改进建议</view>
+    <textarea
+      class="sheet-textarea large-textarea"
+      placeholder="请填写听课评析和改进建议"
+      value="{{formData.improvementSuggestions}}"
+      data-field="improvementSuggestions"
+      bindinput="onInputChange"
+      maxlength="3000"
+      auto-height
+      show-confirm-bar="{{false}}"
+    />
+
+    <view class="upload-section">
+      <view class="sheet-section-title">现场图片</view>
+      <view class="upload-tip">支持上传课堂现场照片，最多 9 张。</view>
+      <image-uploader
+        value="{{formData.images}}"
+        bindchange="onImageChange"
+        maxCount="9"
+      />
+    </view>
+  </view>
+
+  <view class="submit-bar">
+    <button class="submit-btn" bindtap="handleSubmit">
+      {{recordId ? '保存修改' : '提交记录'}}
+    </button>
+  </view>
+</view>

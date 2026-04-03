@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "status-tag": "/components/status-tag/status-tag"
+  },
+  "navigationBarTitleText": "听课记录详情"
+}

@@ -1,0 +1,54 @@
+<!--pages/agreement/privacy.wxml-->
+<view class="agreement-page">
+  <view class="agreement-header">
+    <text class="agreement-title">隐私政策</text>
+    <text class="agreement-update">更新日期：2026年3月4日</text>
+  </view>
+
+  <view class="agreement-content">
+    <view class="section">
+      <text class="section-title">一、引言</text>
+      <text class="section-text">欢迎使用「廊师质量」（以下简称"本小程序"）。我们深知个人信息对您的重要性，我们将按照法律法规的要求，采取相应安全保护措施，保障您的个人信息安全可控。\n\n本隐私政策适用于本小程序提供的所有服务。请您在使用本小程序前，仔细阅读并充分理解本政策的全部内容。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">二、我们收集的信息</text>
+      <text class="section-text">为实现教学监督反馈改进的功能，我们会收集以下信息：\n\n1. 手机号码：用于用户身份识别和登录验证。\n2. 姓名：用于在听课记录、改进任务中展示您的身份信息。\n3. 所属部门/单位：用于组织管理和数据分类展示。\n4. 用户角色信息：用于区分督导、教师、高教中心、管理员等不同角色的功能权限。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">三、信息使用目的</text>
+      <text class="section-text">我们收集的信息将用于以下目的：\n\n1. 提供教学听课评课记录服务。\n2. 支持教学持续改进任务的创建、流转和跟踪。\n3. 实现角色间的协同工作（督导-教师-高教中心）。\n4. 进行必要的身份验证和权限管理。\n5. 改善和优化平台服务质量。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">四、信息存储与保护</text>
+      <text class="section-text">1. 您的个人信息将存储在我们的安全服务器上，我们采用行业标准的安全技术和管理措施来保护您的个人信息。\n\n2. 我们将在实现服务目的所必需的最短时间内保留您的个人信息，超出保留期限后，我们将对您的个人信息进行删除或匿名化处理。\n\n3. 我们不会将您的个人信息转让、出售给任何第三方。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">五、信息共享</text>
+      <text class="section-text">在以下情况下，我们可能会共享您的个人信息：\n\n1. 在教学监督业务流程中，督导可以看到教师的姓名和课程信息；教师可以看到督导的反馈意见。这是实现教学监督功能所必需的信息共享。\n\n2. 根据法律法规的要求、行政或司法机关的要求提供您的个人信息。\n\n3. 除上述情形外，未经您的同意，我们不会向任何第三方共享您的个人信息。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">六、您的权利</text>
+      <text class="section-text">1. 您有权查看您提交的个人信息。\n2. 您有权更正或更新您的个人信息。\n3. 您有权通过退出登录停止使用本服务。\n4. 您有权要求我们删除您的个人信息，您可以联系管理员进行处理。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">七、未成年人保护</text>
+      <text class="section-text">本小程序主要面向教育工作者，不面向未成年人提供服务。如果发现未成年人的个人信息被收集，我们将立即采取措施删除相关信息。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">八、政策更新</text>
+      <text class="section-text">我们可能会不时更新本隐私政策。更新后的政策将在本页面发布，重大变更将通过小程序内通知方式告知您。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">九、联系我们</text>
+      <text class="section-text">如果您对本隐私政策有任何疑问，请通过本小程序中的「帮助与反馈」功能联系我们。</text>
+    </view>
+  </view>
+</view>

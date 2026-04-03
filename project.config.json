@@ -1,0 +1,26 @@
+{
+  "description": "教学监督反馈改进小程序",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "uglifyFileName": false,
+    "useCompilerPlugins": false,
+    "minifyWXML": true
+  },
+  "compileType": "miniprogram",
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "appid": "wx091d80c33e00af98",
+  "projectname": "jiaoxuejiandu",
+  "libVersion": "3.14.3",
+  "editorSetting": {},
+  "condition": {}
+}

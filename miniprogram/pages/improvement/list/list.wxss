@@ -1,0 +1,238 @@
+/* pages/improvement/list/list.wxss - Premium Redesign */
+
+.list-page {
+  min-height: 100vh;
+  background-color: var(--page-bg-color);
+}
+
+/* 粘性筛选栏 - Frosted Glass V2 */
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: var(--glass-border);
+  padding: 20rpx 28rpx;
+}
+
+.filter-picker {
+  width: 100%;
+}
+
+.filter-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 24rpx;
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(15, 23, 42, 0.04);
+}
+
+.filter-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+
+.filter-arrow {
+  font-size: 20rpx;
+  color: var(--text-color-placeholder);
+}
+
+/* 列表容器 */
+.list-container {
+  padding: 20rpx 28rpx;
+}
+
+/* 列表卡片 - 动效与质感 */
+.list-item {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: var(--glass-border);
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 通过 nth-child 实现列表项的交错入场效果 */
+.list-item:nth-child(1) { animation-delay: 0.05s; }
+.list-item:nth-child(2) { animation-delay: 0.1s; }
+.list-item:nth-child(3) { animation-delay: 0.15s; }
+.list-item:nth-child(4) { animation-delay: 0.2s; }
+.list-item:nth-child(5) { animation-delay: 0.25s; }
+.list-item:nth-child(n+6) { animation-delay: 0.3s; }
+
+.list-item:active {
+  transform: scale(0.96) translateY(2rpx);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.item-title {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin-right: 16rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 阶段标签 - 彩色胶囊 */
+.item-stage {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+  background-color: var(--primary-color-glass);
+  padding: 8rpx 20rpx;
+  border-radius: 9999rpx;
+  flex-shrink: 0;
+}
+
+.item-progress {
+  margin-bottom: 16rpx;
+  padding: 12rpx 0;
+}
+
+.item-info {
+  margin-bottom: 12rpx;
+}
+
+.info-row {
+  display: flex;
+  font-size: 26rpx;
+  line-height: 2;
+}
+
+.info-label {
+  color: var(--text-color-secondary);
+  flex-shrink: 0;
+  min-width: 100rpx;
+}
+
+.info-value {
+  color: var(--text-color-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16rpx;
+  border-top: 2rpx solid var(--border-color-light);
+  margin-top: 8rpx;
+}
+
+.item-desc {
+  flex: 1;
+  font-size: 24rpx;
+  color: var(--text-color-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 16rpx;
+}
+
+.item-arrow {
+  width: 32rpx;
+  height: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-arrow::after {
+  content: '';
+  width: 14rpx;
+  height: 14rpx;
+  border-top: 3rpx solid #CBD5E1;
+  border-right: 3rpx solid #CBD5E1;
+  transform: rotate(45deg);
+}
+
+/* 空状态 - 情感化设计 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 160rpx 0;
+  animation: fadeUp 0.6s ease-out;
+}
+
+.empty-icon {
+  font-size: 140rpx;
+  margin-bottom: 32rpx;
+  opacity: 0.8;
+  filter: drop-shadow(0 10rpx 20rpx rgba(0,0,0,0.05));
+}
+
+.empty-text {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+}
+
+/* 加载与终止 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  color: var(--text-color-secondary);
+  font-size: 28rpx;
+}
+
+.no-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  color: var(--text-color-placeholder);
+  font-size: 24rpx;
+}
+
+/* 创建浮动按钮 (FAB) */
+.create-btn {
+  position: fixed;
+  right: 40rpx;
+  bottom: calc(40rpx + 100rpx);
+  width: 112rpx;
+  height: 112rpx;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16rpx 40rpx rgba(37, 99, 235, 0.35);
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.create-btn:active {
+  transform: scale(0.88);
+  box-shadow: 0 6rpx 16rpx rgba(37, 99, 235, 0.2);
+}
+
+.create-icon {
+  font-size: 56rpx;
+  color: #ffffff;
+  line-height: 1;
+}

@@ -1,0 +1,146 @@
+<!--pages/improvement/detail/detail.wxml-->
+<view class="detail-page" wx:if="{{task}}">
+  <view class="progress-card">
+    <view class="progress-header">
+      <text class="progress-title">当前阶段</text>
+      <text class="progress-stage">{{currentStageText}}</text>
+    </view>
+    <view class="progress-tip">复查或复核退回后，将重新回到“二级处理”继续循环。</view>
+  </view>
+
+  <view class="loop-card">
+    <view class="loop-title">闭环循环流程</view>
+    <view class="loop-tip">高教中心或督导退回时，流程将回流到“二级处理”重新整改。</view>
+    <view class="loop-grid">
+      <view class="loop-node {{task.currentStage === 'submitted' ? 'active' : ''}}">
+        <text class="loop-node-title">一级发起</text>
+        <text class="loop-node-role">督导 / 高教中心</text>
+      </view>
+      <view class="loop-arrow horizontal">→</view>
+      <view class="loop-node {{task.currentStage === 'revising' ? 'active' : ''}}">
+        <text class="loop-node-title">二级处理</text>
+        <text class="loop-node-role">二级学院领导 / 教师</text>
+      </view>
+
+      <view class="loop-arrow corner-right">↓</view>
+      <view class="loop-center">
+        <text class="loop-center-title">闭环完成</text>
+        <text class="loop-center-sub">{{task.currentStage === 'completed' ? '当前已完成' : '通过后归档'}}</text>
+      </view>
+      <view class="loop-arrow corner-left">↓</view>
+
+      <view class="loop-node {{task.currentStage === 'supervisor_review' ? 'active' : ''}}">
+        <text class="loop-node-title">督导复核</text>
+        <text class="loop-node-role">督导</text>
+      </view>
+      <view class="loop-arrow horizontal reverse">←</view>
+      <view class="loop-node {{task.currentStage === 'college_check' ? 'active' : ''}}">
+        <text class="loop-node-title">高教中心复查</text>
+        <text class="loop-node-role">高教中心</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="sheet-card">
+    <view class="sheet-title">持续改进表</view>
+    <view class="sheet-table">
+      <view class="sheet-row">
+        <view class="sheet-cell label">教师姓名</view>
+        <view class="sheet-cell value">{{task.teacherName || '-'}}</view>
+      </view>
+      <view class="sheet-row">
+        <view class="sheet-cell label">所属学院</view>
+        <view class="sheet-cell value">{{task.collegeName || '-'}}</view>
+      </view>
+      <view class="sheet-row">
+        <view class="sheet-cell label">检查日期</view>
+        <view class="sheet-cell value">{{task.formData.inspectionDate || '-'}}</view>
+      </view>
+    </view>
+
+    <view class="sheet-section-title">检查学院存在问题</view>
+    <view class="content-box">{{task.formData.inspectionIssues || '-'}}</view>
+
+    <view class="sheet-section-title">改进情况</view>
+    <view class="content-box">{{task.formData.improvementStatus || '待二级处理填写'}}</view>
+
+    <view class="sheet-section-title">复查情况</view>
+    <view class="content-box">{{task.formData.reviewStatus || '待高教中心 / 督导填写'}}</view>
+  </view>
+
+  <view class="sheet-card" wx:if="{{task.formData.issueImages && task.formData.issueImages.length > 0}}">
+    <view class="sheet-title">问题附件</view>
+    <view class="image-grid">
+      <view
+        class="image-item"
+        wx:for="{{task.formData.issueImages}}"
+        wx:key="index"
+        data-urls="{{task.formData.issueImages}}"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      >
+        <image class="image" src="{{item}}" mode="aspectFill" />
+      </view>
+    </view>
+  </view>
+
+  <view class="sheet-card" wx:if="{{task.formData.improvementImages && task.formData.improvementImages.length > 0}}">
+    <view class="sheet-title">整改附件</view>
+    <view class="image-grid">
+      <view
+        class="image-item"
+        wx:for="{{task.formData.improvementImages}}"
+        wx:key="index"
+        data-urls="{{task.formData.improvementImages}}"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      >
+        <image class="image" src="{{item}}" mode="aspectFill" />
+      </view>
+    </view>
+  </view>
+
+  <view class="sheet-card" wx:if="{{task.formData.reviewImages && task.formData.reviewImages.length > 0}}">
+    <view class="sheet-title">复查 / 复核附件</view>
+    <view class="image-grid">
+      <view
+        class="image-item"
+        wx:for="{{task.formData.reviewImages}}"
+        wx:key="index"
+        data-urls="{{task.formData.reviewImages}}"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      >
+        <image class="image" src="{{item}}" mode="aspectFill" />
+      </view>
+    </view>
+  </view>
+
+  <view class="sheet-card">
+    <view class="sheet-title">循环流转记录</view>
+    <view class="history-list">
+      <view class="history-item" wx:for="{{task.stageHistory}}" wx:key="index">
+        <view class="history-dot"></view>
+        <view class="history-content">
+          <text class="history-action">{{item.actionLabel}}</text>
+          <text class="history-operator">{{item.operatorLabel || '-'}}</text>
+          <text class="history-time">{{item.timeText}}</text>
+          <text class="history-comment" wx:if="{{item.comment}}">{{item.comment}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-bar" wx:if="{{actionButtons.length > 0}}">
+    <button
+      class="action-btn"
+      wx:for="{{actionButtons}}"
+      wx:key="action"
+      data-action="{{item.action}}"
+      data-operator-role="{{item.operatorRole}}"
+      bindtap="handleActionTap"
+    >
+      {{item.text}}
+    </button>
+  </view>
+</view>

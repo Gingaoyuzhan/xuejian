@@ -1,0 +1,41 @@
+<!--pages/profile/profile.wxml-->
+<view class="profile-page">
+
+  <!-- 未登录提示 -->
+  <block wx:if="{{!isLoggedIn}}">
+    <view class="login-prompt">
+      <text class="login-prompt-icon">👤</text>
+      <text class="login-prompt-title">个人中心</text>
+      <text class="login-prompt-desc">登录后可管理个人信息和快捷功能</text>
+      <button class="login-prompt-btn" bindtap="goToLogin">登录 / 注册</button>
+    </view>
+  </block>
+
+  <!-- 已登录内容 -->
+  <block wx:else>
+    <!-- 用户信息 -->
+    <view class="user-section">
+      <user-card user="{{userInfo}}" size="large" showDetail />
+    </view>
+
+    <!-- 菜单列表 -->
+    <view class="menu-section">
+      <view
+        class="menu-item"
+        wx:for="{{menuList}}"
+        wx:key="id"
+        data-url="{{item.url}}"
+        bindtap="handleMenuTap"
+      >
+        <view class="menu-icon">{{item.icon}}</view>
+        <text class="menu-title">{{item.title}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 退出登录 -->
+    <view class="logout-section">
+      <button class="logout-btn" bindtap="handleLogout">退出登录</button>
+    </view>
+  </block>
+</view>

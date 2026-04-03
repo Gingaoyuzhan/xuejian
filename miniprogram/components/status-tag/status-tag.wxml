@@ -1,0 +1,4 @@
+<!--components/status-tag/status-tag.wxml-->
+<view class="status-tag status-tag--{{size}} {{outline ? 'status-tag--outline' : ''}}" style="background-color: {{outline ? 'transparent' : displayColor}}; border-color: {{displayColor}}; color: {{outline ? displayColor : '#ffffff'}};">
+  <text class="status-tag__text">{{displayText}}</text>
+</view>

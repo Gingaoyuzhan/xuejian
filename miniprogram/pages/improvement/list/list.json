@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "stage-progress": "/components/stage-progress/stage-progress"
+  },
+  "navigationBarTitleText": "持续改进",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

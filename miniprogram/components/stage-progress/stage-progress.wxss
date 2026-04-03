@@ -1,0 +1,132 @@
+/* components/stage-progress/stage-progress.wxss - Premium Redesign */
+
+.stage-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+}
+
+.stage-progress--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stage-item-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.stage-progress--vertical .stage-item-wrapper {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.stage-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.stage-progress--vertical .stage-item {
+  margin-bottom: 0;
+}
+
+.stage-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.stage-item--completed .stage-icon {
+  background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(16, 185, 129, 0.3);
+}
+
+.stage-item--active .stage-icon {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: #ffffff;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 4rpx 16rpx rgba(37, 99, 235, 0.35);
+}
+
+.stage-item--pending .stage-icon {
+  background-color: var(--border-color-light);
+  color: var(--text-color-placeholder);
+}
+
+.stage-info {
+  margin-left: 12rpx;
+}
+
+.stage-progress--vertical .stage-info {
+  margin-left: 20rpx;
+}
+
+.stage-name {
+  font-size: 24rpx;
+  color: var(--text-color-primary);
+}
+
+.stage-item--completed .stage-name,
+.stage-item--active .stage-name {
+  font-weight: 600;
+  color: var(--text-color-dark);
+}
+
+.stage-item--pending .stage-name {
+  color: var(--text-color-placeholder);
+}
+
+.stage-line {
+  flex: 1;
+  height: 4rpx;
+  margin: 0 12rpx;
+  flex-shrink: 0;
+  border-radius: 2rpx;
+}
+
+.stage-progress--vertical .stage-line {
+  width: 4rpx;
+  height: 48rpx;
+  margin: 8rpx 0 0 22rpx;
+}
+
+.stage-line--completed {
+  background: linear-gradient(90deg, var(--success-color), #34D399);
+}
+
+.stage-line--active {
+  background: linear-gradient(90deg, var(--success-color) 50%, var(--border-color-light) 50%);
+}
+
+.stage-progress--vertical .stage-line--active {
+  background: linear-gradient(180deg, var(--success-color) 50%, var(--border-color-light) 50%);
+}
+
+.stage-line--pending {
+  background-color: var(--border-color-light);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.15);
+  }
+}

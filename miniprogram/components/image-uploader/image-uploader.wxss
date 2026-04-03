@@ -1,0 +1,78 @@
+/* components/image-uploader/image-uploader.wxss - Premium Redesign */
+
+.image-uploader {
+  width: 100%;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.image-item {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+  background-color: var(--page-bg-color);
+  box-shadow: 0 2rpx 8rpx rgba(15, 23, 42, 0.04);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(239, 68, 68, 0.85);
+  border-bottom-left-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.delete-icon {
+  color: #ffffff;
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+.upload-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 160rpx;
+  border: 3rpx dashed var(--border-color);
+  border-radius: 20rpx;
+  background-color: rgba(248, 250, 252, 0.8);
+  transition: all 0.2s ease;
+}
+
+.upload-btn:active {
+  background-color: #ffffff;
+  border-color: var(--primary-color);
+  transform: scale(0.95);
+}
+
+.upload-icon {
+  font-size: 48rpx;
+  color: var(--text-color-placeholder);
+  line-height: 1;
+  margin-bottom: 4rpx;
+}
+
+.upload-text {
+  font-size: 20rpx;
+  color: var(--text-color-placeholder);
+  font-weight: 500;
+}

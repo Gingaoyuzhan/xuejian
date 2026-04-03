@@ -1,0 +1,49 @@
+<!--pages/agreement/service.wxml-->
+<view class="agreement-page">
+  <view class="agreement-header">
+    <text class="agreement-title">用户服务协议</text>
+    <text class="agreement-update">更新日期：2026年3月4日</text>
+  </view>
+
+  <view class="agreement-content">
+    <view class="section">
+      <text class="section-title">一、总则</text>
+      <text class="section-text">1. 「廊师质量」（以下简称"本小程序"）是一款为教育机构提供教学监督、听课评课、持续改进管理的专业工具。\n\n2. 您在注册和使用本小程序前，请务必仔细阅读并充分理解本协议各条款。注册和使用本小程序即表示您已充分阅读、理解并同意接受本协议的约束。\n\n3. 本小程序有权根据需要修改本协议，修改后的协议将在小程序内公布。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">二、服务内容</text>
+      <text class="section-text">本小程序为用户提供以下服务：\n\n1. 听课评课：督导可以创建听课记录，记录课堂教学情况和评价建议。\n2. 持续改进：基于听课反馈创建改进任务，支持多阶段流转（督导审核-教师改进-高教中心检查）。\n3. 数据统计：提供教学监督相关的数据统计和查看功能。\n4. 角色管理：支持督导、教师、高教中心、管理员四种角色的协同工作。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">三、用户注册</text>
+      <text class="section-text">1. 用户需要提供手机号码、姓名、所属部门/单位等信息进行注册。\n\n2. 用户应保证注册信息的真实性、准确性和完整性。因用户提供不实信息造成的一切后果由用户自行承担。\n\n3. 用户应妥善保管账户信息，因用户原因导致的账户安全问题由用户自行负责。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">四、用户行为规范</text>
+      <text class="section-text">用户在使用本小程序时应遵守以下规范：\n\n1. 遵守国家法律法规，不得利用本小程序从事违法活动。\n2. 不得发布虚假、不良或侵犯他人权益的内容。\n3. 不得干扰或破坏本小程序的正常运行。\n4. 应按照教学监督工作的要求，真实、客观地填写听课记录和改进意见。\n5. 尊重他人隐私，不得泄露通过本小程序获取的他人信息。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">五、知识产权</text>
+      <text class="section-text">1. 本小程序的所有内容，包括但不限于文字、图片、界面设计、程序代码等，均受知识产权法律保护。\n\n2. 用户在小程序中创建的听课记录、改进意见等内容，其版权归属由相关教育机构的规定确定。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">六、免责声明</text>
+      <text class="section-text">1. 因不可抗力、系统维护等原因导致服务中断，本小程序不承担责任，但将尽快恢复服务。\n\n2. 本小程序不对用户提交内容的准确性和完整性承担责任。\n\n3. 因用户自身原因导致的信息泄露或损失，本小程序不承担责任。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">七、协议终止</text>
+      <text class="section-text">1. 用户可以随时通过退出登录停止使用本小程序服务。\n\n2. 如用户违反本协议规定，本小程序有权终止对该用户的服务。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">八、其他</text>
+      <text class="section-text">1. 本协议的签订、履行、解释均适用中华人民共和国法律。\n\n2. 如本协议任何条款被认定为无效，不影响其他条款的效力。\n\n3. 本协议的最终解释权归本小程序运营方所有。</text>
+    </view>
+  </view>
+</view>

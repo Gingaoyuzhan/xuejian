@@ -1,0 +1,39 @@
+/* components/status-tag/status-tag.wxss - Premium Redesign */
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 20rpx;
+  border-radius: 9999rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1.2;
+  border: none;
+  box-sizing: border-box;
+  backdrop-filter: blur(4px);
+}
+
+.status-tag--small {
+  padding: 4rpx 16rpx;
+  font-size: 20rpx;
+}
+
+.status-tag--medium {
+  padding: 8rpx 20rpx;
+  font-size: 22rpx;
+}
+
+.status-tag--large {
+  padding: 12rpx 28rpx;
+  font-size: 26rpx;
+}
+
+.status-tag--outline {
+  background-color: transparent !important;
+  border: 2rpx solid currentColor;
+}
+
+.status-tag__text {
+  display: block;
+}

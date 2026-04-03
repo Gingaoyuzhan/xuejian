@@ -1,0 +1,106 @@
+/* pages/profile/profile.wxss */
+@import "../../styles/variables.wxss";
+
+.profile-page {
+  min-height: 100vh;
+  background-color: var(--page-bg-color);
+}
+
+/* 用户信息 */
+.user-section {
+  background-color: var(--card-bg);
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border-bottom-left-radius: var(--radius-xl);
+  border-bottom-right-radius: var(--radius-xl);
+  border-bottom: var(--glass-border);
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 菜单列表 - Inset Grouped Style */
+.menu-section {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-xl);
+  margin: 0 var(--spacing-md) var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border: var(--glass-border);
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both 0.1s;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 16px var(--spacing-lg);
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+/* 内部带有内边距的分割线 */
+.menu-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 52px; /* 绕过图标 */
+  right: 0;
+  height: 1px;
+  background-color: var(--border-color-light);
+}
+
+.menu-item:active {
+  background-color: rgba(248, 250, 252, 0.6);
+}
+
+.menu-icon {
+  font-size: 20px;
+  margin-right: var(--spacing-md);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color-light);
+  border-radius: 8px;
+  color: var(--primary-color);
+}
+
+.menu-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+
+.menu-arrow {
+  font-size: 20px;
+  color: #D1D5DB;
+  font-weight: 300;
+}
+
+/* 退出登录 */
+.logout-section {
+  padding: 0 var(--spacing-md) var(--spacing-xxl);
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both 0.2s;
+}
+
+.logout-btn {
+  width: 100%;
+  height: 52px;
+  background-color: #ffffff;
+  color: var(--danger-color);
+  border-radius: var(--border-radius-xl);
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.logout-btn::after {
+  border: none;
+}
+
+.logout-btn:active {
+  background-color: var(--danger-color-light);
+  transform: scale(0.98);
+}

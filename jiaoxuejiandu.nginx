@@ -1,0 +1,42 @@
+# 教学监督系统 - Nginx 配置
+# 域名: jxjd.gaoyuzhan.top -> 后端 API
+
+# HTTP -> HTTPS 跳转
+server {
+    listen 80;
+    server_name jxjd.gaoyuzhan.top;
+    return 301 https://$host$request_uri;
+}
+
+# HTTPS 配置
+server {
+    listen 443 ssl;
+    server_name jxjd.gaoyuzhan.top;
+
+    # SSL 证书（certbot 自动生成的路径）
+    ssl_certificate /etc/letsencrypt/live/jxjd.gaoyuzhan.top/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/jxjd.gaoyuzhan.top/privkey.pem;
+
+    # SSL 安全配置
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # API 反向代理
+    location /api/ {
+        proxy_pass http://localhost:3001/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # 上传文件静态访问
+    location /uploads/ {
+        proxy_pass http://localhost:3001/uploads/;
+    }
+}

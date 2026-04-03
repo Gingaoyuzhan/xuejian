@@ -1,0 +1,161 @@
+<!--pages/index/index.wxml-->
+<view class="index-container">
+  <!-- 顶部氛围装饰 -->
+  <view class="header-bg"></view>
+
+  <view class="content-wrapper">
+
+    <!-- ===== 游客模式：未登录时展示功能介绍 ===== -->
+    <block wx:if="{{!isLoggedIn}}">
+      <view class="guest-welcome">
+        <view class="guest-icon">🎓</view>
+        <text class="guest-title">廊师质量</text>
+        <text class="guest-desc">支持听课评课记录、教学持续改进跟踪、多角色协同管理</text>
+      </view>
+
+      <!-- 功能介绍卡片 -->
+      <view class="section-divider">
+        <text class="section-title">功能服务</text>
+      </view>
+
+      <view class="nav-cards-container">
+        <view class="nav-card">
+          <view class="nav-icon-box bg-blue">
+            <text class="nav-emoji">📋</text>
+          </view>
+          <view class="nav-info">
+            <text class="nav-title">听课评课</text>
+            <text class="nav-desc">督导随堂听课，记录课堂表现与教学建议</text>
+          </view>
+        </view>
+
+        <view class="nav-card">
+          <view class="nav-icon-box bg-purple">
+            <text class="nav-emoji">💡</text>
+          </view>
+          <view class="nav-info">
+            <text class="nav-title">持续改进</text>
+            <text class="nav-desc">教学闭环管理，跟踪改进措施落实情况</text>
+          </view>
+        </view>
+
+        <view class="nav-card">
+          <view class="nav-icon-box bg-green">
+            <text class="nav-emoji">👥</text>
+          </view>
+          <view class="nav-info">
+            <text class="nav-title">多角色协同</text>
+            <text class="nav-desc">督导、教师、高教中心、二级学院领导协同联动</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 登录入口 -->
+      <view class="guest-login-section">
+        <button class="guest-login-btn" bindtap="goToLogin">登录 / 注册</button>
+        <text class="guest-login-hint">登录后可使用全部功能</text>
+      </view>
+    </block>
+
+    <!-- ===== 已登录模式：展示完整功能 ===== -->
+    <block wx:else>
+      <!-- 用户信息卡片 -->
+      <view class="user-section">
+        <user-card user="{{userInfo}}" size="large" showDetail />
+      </view>
+
+      <!-- Bento Grid数据大盘 -->
+      <view class="bento-grid">
+        <view class="bento-item stat-my-obs" bindtap="goToObservationList">
+          <view class="bento-bg-icon">📋</view>
+          <text class="bento-label">听课记录</text>
+          <view class="bento-value-container">
+            <text class="bento-value">{{stats.myObservations}}</text>
+            <text class="bento-unit">次</text>
+          </view>
+          <text class="bento-sub">本学期已听课</text>
+        </view>
+
+        <view class="bento-item stat-my-imp" bindtap="goToImprovementList">
+          <view class="bento-bg-icon">🔄</view>
+          <text class="bento-label">改进任务</text>
+          <view class="bento-value-container">
+            <text class="bento-value">{{stats.myImprovements}}</text>
+            <text class="bento-unit">个</text>
+          </view>
+          <text class="bento-sub">当前进行中的任务</text>
+        </view>
+
+        <view class="bento-item stat-pending-obs">
+          <text class="bento-label">待审听课</text>
+          <text class="bento-value {{stats.pendingObservations > 0 ? 'text-warning' : ''}}">{{stats.pendingObservations}}</text>
+        </view>
+
+        <view class="bento-item stat-pending-imp">
+          <text class="bento-label">待办改进</text>
+          <text class="bento-value {{stats.pendingImprovements > 0 ? 'text-danger' : ''}}">{{stats.pendingImprovements}}</text>
+        </view>
+      </view>
+
+      <view class="section-divider">
+        <text class="section-title">核心功能</text>
+      </view>
+
+      <!-- 现代功能导航 -->
+      <view class="nav-cards-container">
+        <view class="nav-card" bindtap="goToObservationList">
+          <view class="nav-icon-box bg-blue">
+            <text class="nav-emoji">📋</text>
+          </view>
+          <view class="nav-info">
+            <text class="nav-title">听课评课</text>
+            <text class="nav-desc">记录课堂表现与建议</text>
+          </view>
+          <view class="nav-arrow">
+            <text class="icon-right-arrow"></text>
+          </view>
+        </view>
+
+        <view class="nav-card" bindtap="goToImprovementList">
+          <view class="nav-icon-box bg-purple">
+            <text class="nav-emoji">💡</text>
+          </view>
+          <view class="nav-info">
+            <text class="nav-title">持续改进</text>
+            <text class="nav-desc">教学闭环与能力提升</text>
+          </view>
+          <view class="nav-arrow">
+            <text class="icon-right-arrow"></text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 快捷入口 (如果有) -->
+      <block wx:if="{{menuList.length > 0}}">
+        <view class="section-divider mt-lg">
+          <text class="section-title">待办事项</text>
+        </view>
+        
+        <view class="todo-list">
+          <view
+            class="todo-item"
+            wx:for="{{menuList}}"
+            wx:key="id"
+            data-url="{{item.url}}"
+            bindtap="handleMenuTap"
+          >
+            <view class="todo-icon-ring">
+              <text class="todo-icon">{{item.icon}}</text>
+            </view>
+            <view class="todo-content">
+              <text class="todo-title">{{item.title}}</text>
+              <text class="todo-desc">{{item.desc}}</text>
+            </view>
+            <view class="todo-action">去处理</view>
+          </view>
+        </view>
+      </block>
+    </block>
+
+  </view>
+</view>

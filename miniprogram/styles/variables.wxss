@@ -1,0 +1,69 @@
+/**
+ * 全局样式变量（WXSS 变量） - Premium Redesign
+ */
+
+page {
+  /* 现代主色调: 深邃蓝 (Deep Royal Blue) */
+  --primary-color: #2563EB;
+  --primary-color-active: #1D4ED8;
+  --primary-color-light: #EFF6FF;
+  --primary-color-glass: rgba(37, 99, 235, 0.1);
+
+  /* 辅助色: 活力紫 (Vibrant Purple) / 亮青色 (Cyan) */
+  --secondary-color: #7C3AED;
+  --accent-color: #06B6D4;
+
+  /* 状态色 - 清新明快 */
+  --success-color: #10B981;
+  --success-color-light: #ECFDF5;
+  --success-color-glass: rgba(16, 185, 129, 0.15);
+  
+  --warning-color: #F59E0B;
+  --warning-color-light: #FFFBEB;
+  --warning-color-glass: rgba(245, 158, 11, 0.15);
+  
+  --danger-color: #EF4444;
+  --danger-color-light: #FEF2F2;
+  --danger-color-glass: rgba(239, 68, 68, 0.15);
+
+  /* 文字颜色 - 更高对比度，更好阅读体验 */
+  --text-color-dark: #0F172A;     /* 极深色标题 */
+  --text-color-primary: #1E293B;  /* 常规正文 */
+  --text-color-secondary: #64748B;/* 辅助信息 */
+  --text-color-placeholder: #94A3B8;
+
+  /* 背景色 - 极其轻柔的蓝灰色背景，比纯灰显高级 */
+  --page-bg-color: #F8FAFC;
+  --card-bg-color: #FFFFFF;
+  --glass-bg-color: rgba(255, 255, 255, 0.75);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+
+  /* 边框 - 若有若无的边界感 */
+  --border-color: #E2E8F0;
+  --border-color-light: #F1F5F9;
+
+  /* 阴影 - 现代弥散质感阴影 */
+  --shadow-sm: 0 4rpx 12rpx rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 10rpx 30rpx rgba(15, 23, 42, 0.05), 0 2rpx 8rpx rgba(15, 23, 42, 0.02);
+  --shadow-lg: 0 20rpx 50rpx rgba(15, 23, 42, 0.08), 0 8rpx 20rpx rgba(15, 23, 42, 0.04);
+  --shadow-primary: 0 12rpx 30rpx rgba(37, 99, 235, 0.25);
+
+  /* 间距规范 - 适当放大，增加呼吸感 */
+  --spacing-xs: 8rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 24rpx;
+  --spacing-lg: 32rpx;
+  --spacing-xl: 40rpx;
+  --spacing-xxl: 60rpx;
+
+  /* 圆角大小 - 极致圆润 */
+  --border-radius-sm: 12rpx;
+  --border-radius-md: 20rpx;
+  --border-radius-lg: 32rpx;
+  --border-radius-xl: 48rpx;
+  --border-radius-max: 9999rpx;
+
+  /* V2 动效常量 */
+  --anim-duration: 0.4s;
+  --anim-easing: cubic-bezier(0.16, 1, 0.3, 1);
+}

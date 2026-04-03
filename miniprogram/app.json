@@ -1,0 +1,52 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/profile/profile",
+    "pages/observation/list/list",
+    "pages/observation/detail/detail",
+    "pages/observation/create/create",
+    "pages/observation/audit/audit",
+    "pages/observation/audit-detail/audit-detail",
+    "pages/improvement/list/list",
+    "pages/improvement/detail/detail",
+    "pages/improvement/create/create",
+    "pages/improvement/revise/revise",
+    "pages/improvement/college-check/college-check",
+    "pages/improvement/supervisor-review/supervisor-review",
+    "pages/agreement/privacy",
+    "pages/agreement/service"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#4F46E5",
+    "navigationBarTitleText": "廊师质量",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F3F4F6"
+  },
+  "tabBar": {
+    "color": "#9CA3AF",
+    "selectedColor": "#4F46E5",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/observation/list/list",
+        "text": "听课评课"
+      },
+      {
+        "pagePath": "pages/improvement/list/list",
+        "text": "持续改进"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

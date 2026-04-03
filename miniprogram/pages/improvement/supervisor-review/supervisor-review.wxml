@@ -1,0 +1,69 @@
+<!--pages/improvement/supervisor-review/supervisor-review.wxml-->
+<view class="page" wx:if="{{task}}">
+  <view class="info-card">
+    <view class="card-title">持续改进表</view>
+    <view class="info-row">
+      <text class="info-label">教师姓名</text>
+      <text class="info-value">{{task.teacherName || '-'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">所属学院</text>
+      <text class="info-value">{{task.collegeName || '-'}}</text>
+    </view>
+    <view class="section-subtitle">检查学院存在问题</view>
+    <view class="content-box">{{task.formData.inspectionIssues || '-'}}</view>
+
+    <view class="section-subtitle">改进情况</view>
+    <view class="content-box">{{task.formData.improvementStatus || '待填写'}}</view>
+
+    <view class="section-subtitle">高教中心复查情况</view>
+    <view class="content-box">{{task.collegeCheckResult || '待复查'}}</view>
+  </view>
+
+  <view class="image-card" wx:if="{{task.collegeCheckImages && task.collegeCheckImages.length > 0}}">
+    <view class="card-title">高教中心复查附件</view>
+    <view class="image-grid">
+      <view
+        class="image-item"
+        wx:for="{{task.collegeCheckImages}}"
+        wx:key="index"
+        data-urls="{{task.collegeCheckImages}}"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      >
+        <image class="image" src="{{item}}" mode="aspectFill" />
+      </view>
+    </view>
+  </view>
+
+  <view class="form-card">
+    <view class="card-title">督导复核</view>
+    <view class="form-item">
+      <view class="form-label required">复核情况</view>
+      <textarea
+        class="form-textarea"
+        placeholder="请填写督导复核意见或退回要求"
+        value="{{formData.reviewStatus}}"
+        bindinput="onStatusInput"
+        maxlength="3000"
+        auto-height
+        show-confirm-bar="{{false}}"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">复核附件</view>
+      <image-uploader
+        value="{{formData.images}}"
+        bindchange="onImageChange"
+        maxCount="9"
+      />
+      <view class="form-tip">可上传复核截图或补充说明。</view>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button class="action-btn return-btn" bindtap="handleReturn">退回二级处理</button>
+    <button class="action-btn approve-btn" bindtap="handleApprove">闭环完成</button>
+  </view>
+</view>

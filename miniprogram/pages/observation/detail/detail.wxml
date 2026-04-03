@@ -1,0 +1,110 @@
+<!--pages/observation/detail/detail.wxml-->
+<view class="detail-page" wx:if="{{record}}">
+  <view class="status-card">
+    <view class="status-header">
+      <text class="status-title">听课记录</text>
+      <status-tag status="{{record.status}}" />
+    </view>
+    <text class="status-text">{{statusText}}</text>
+  </view>
+
+  <view class="sheet-card">
+    <view class="sheet-title">表一：听课基本信息</view>
+    <view class="sheet-table">
+      <view class="sheet-row">
+        <view class="sheet-cell label wide">听课时间</view>
+        <view class="sheet-cell value flex-cell">{{record.observationDateText}}</view>
+        <view class="sheet-cell label">节次</view>
+        <view class="sheet-cell value fixed-cell">第{{record.formData.lessonNumber || '-'}}节</view>
+      </view>
+      <view class="sheet-row multi-column">
+        <view class="sheet-cell label">姓名</view>
+        <view class="sheet-cell value grow">{{record.formData.teacherName || '-'}}</view>
+        <view class="sheet-cell label">课程名称</view>
+        <view class="sheet-cell value grow">{{record.formData.courseName || '-'}}</view>
+        <view class="sheet-cell label">授课地点</view>
+        <view class="sheet-cell value grow">{{record.formData.location || '-'}}</view>
+      </view>
+      <view class="sheet-row multi-column">
+        <view class="sheet-cell label">职称</view>
+        <view class="sheet-cell value grow">{{record.formData.teacherTitle || '-'}}</view>
+        <view class="sheet-cell label">单位</view>
+        <view class="sheet-cell value grow">{{record.formData.unitName || '-'}}</view>
+        <view class="sheet-cell label">授课班级</view>
+        <view class="sheet-cell value grow">{{record.formData.classInfo || '-'}}</view>
+      </view>
+    </view>
+
+    <view class="sheet-section-title">教学过程</view>
+    <view class="content-box">{{record.formData.teachingProcess || '-'}}</view>
+  </view>
+
+  <view class="sheet-card">
+    <view class="sheet-title">表二：评课记录</view>
+
+    <view class="sheet-section-title">教学效果</view>
+    <view class="content-box">{{record.formData.teachingEffect || '-'}}</view>
+
+    <view class="sheet-section-title">评析及改进建议</view>
+    <view class="content-box large-box">{{record.formData.improvementSuggestions || '-'}}</view>
+  </view>
+
+  <view class="sheet-card" wx:if="{{record.formData.images && record.formData.images.length > 0}}">
+    <view class="sheet-title">现场图片</view>
+    <view class="image-grid">
+      <view
+        class="image-item"
+        wx:for="{{record.formData.images}}"
+        wx:key="index"
+        data-urls="{{record.formData.images}}"
+        data-index="{{index}}"
+        bindtap="previewImage"
+      >
+        <image class="image" src="{{item}}" mode="aspectFill" />
+      </view>
+    </view>
+  </view>
+
+  <view class="sheet-card">
+    <view class="sheet-title">审核信息</view>
+    <view class="meta-list">
+      <view class="meta-item">
+        <text class="meta-label">督导教师</text>
+        <text class="meta-value">{{record.supervisorName || '-'}}</text>
+      </view>
+      <view class="meta-item">
+        <text class="meta-label">创建时间</text>
+        <text class="meta-value">{{record.createTimeFormatted || '-'}}</text>
+      </view>
+      <view class="meta-item" wx:if="{{record.status !== 'pending'}}">
+        <text class="meta-label">审核人</text>
+        <text class="meta-value">{{record.reviewerName || '-'}}</text>
+      </view>
+      <view class="meta-item" wx:if="{{record.status !== 'pending'}}">
+        <text class="meta-label">审核时间</text>
+        <text class="meta-value">{{record.reviewTimeFormatted || '-'}}</text>
+      </view>
+      <view class="meta-item full" wx:if="{{record.reviewComment}}">
+        <text class="meta-label">审核意见</text>
+        <text class="meta-value multiline">{{record.reviewComment}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button
+      class="action-btn secondary"
+      wx:if="{{canEdit}}"
+      bindtap="handleEdit"
+    >
+      修改记录
+    </button>
+    <button
+      class="action-btn primary"
+      wx:if="{{canAudit}}"
+      bindtap="handleAudit"
+    >
+      立即审核
+    </button>
+  </view>
+</view>

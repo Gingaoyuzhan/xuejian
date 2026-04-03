@@ -1,0 +1,391 @@
+/* pages/index/index.wxss - Premium Dashboard */
+
+.index-container {
+  min-height: 100vh;
+  background: var(--page-bg-color);
+  position: relative;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 顶部渐变氛围背景 */
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 420rpx;
+  background: linear-gradient(145deg, #1E40AF 0%, #2563EB 40%, #3B82F6 100%);
+  border-radius: 0 0 60rpx 60rpx;
+  z-index: 0;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  padding: 24rpx 28rpx;
+}
+
+/* ========== 用户区 ========== */
+.user-section {
+  margin-bottom: 24rpx;
+}
+
+/* ========== Bento Grid 数据大盘 ========== */
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.bento-item {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  padding: 28rpx 24rpx;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 赋予网格卡片交错入场动画 */
+.bento-item:nth-child(1) { animation-delay: 0.05s; }
+.bento-item:nth-child(2) { animation-delay: 0.1s; }
+.bento-item:nth-child(3) { animation-delay: 0.15s; }
+.bento-item:nth-child(4) { animation-delay: 0.2s; }
+
+.bento-item:active {
+  transform: scale(0.96) translateY(2rpx);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+/* 大卡片 — 占满整行的两个主要指标 */
+.stat-my-obs, .stat-my-imp {
+  min-height: 220rpx;
+  justify-content: space-between;
+}
+
+/* 小卡片 — 底部紧凑指标 */
+.stat-pending-obs, .stat-pending-imp {
+  min-height: 140rpx;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* 背景装饰大图标 */
+.bento-bg-icon {
+  position: absolute;
+  right: -10rpx;
+  bottom: -10rpx;
+  font-size: 120rpx;
+  opacity: 0.08;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bento-label {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  margin-bottom: 12rpx;
+  z-index: 1;
+}
+
+.bento-value-container {
+  display: flex;
+  align-items: baseline;
+  z-index: 1;
+}
+
+.bento-value {
+  font-size: 64rpx;
+  font-weight: 800;
+  color: var(--text-color-dark);
+  line-height: 1;
+  font-family: 'DIN Alternate', -apple-system, sans-serif;
+}
+
+.bento-unit {
+  font-size: 26rpx;
+  color: var(--text-color-secondary);
+  margin-left: 8rpx;
+  font-weight: 500;
+}
+
+.bento-sub {
+  font-size: 22rpx;
+  color: var(--text-color-placeholder);
+  margin-top: 12rpx;
+  z-index: 1;
+}
+
+/* 小卡片的数字稍小一些 */
+.stat-pending-obs .bento-value,
+.stat-pending-imp .bento-value {
+  font-size: 48rpx;
+  margin-top: 8rpx;
+}
+
+.stat-pending-obs .bento-label,
+.stat-pending-imp .bento-label {
+  margin-bottom: 4rpx;
+}
+
+/* ========== 分隔标题 ========== */
+.section-divider {
+  padding: 0 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  position: relative;
+  padding-left: 24rpx;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8rpx;
+  height: 32rpx;
+  background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+  border-radius: 4rpx;
+}
+
+/* ========== 功能导航卡片 ========== */
+.nav-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.nav-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 28rpx 24rpx;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.nav-card:nth-child(1) { animation-delay: 0.25s; }
+.nav-card:nth-child(2) { animation-delay: 0.3s; }
+
+.nav-card:active {
+  transform: scale(0.98) translateY(2rpx);
+  background: #FAFBFF;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+.nav-icon-box {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.bg-blue {
+  background: linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 100%);
+}
+
+.bg-purple {
+  background: linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 100%);
+}
+
+.nav-emoji {
+  font-size: 44rpx;
+}
+
+.nav-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin-bottom: 6rpx;
+}
+
+.nav-desc {
+  font-size: 24rpx;
+  color: var(--text-color-secondary);
+}
+
+.nav-arrow {
+  width: 56rpx;
+  height: 56rpx;
+  background: var(--page-bg-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-right-arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 4rpx solid var(--text-color-placeholder);
+  border-right: 4rpx solid var(--text-color-placeholder);
+  transform: rotate(45deg);
+  margin-left: -4rpx;
+}
+
+/* ========== 待办事项列表 ========== */
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 24rpx;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.todo-item:nth-child(1) { animation-delay: 0.35s; }
+.todo-item:nth-child(2) { animation-delay: 0.4s; }
+.todo-item:nth-child(3) { animation-delay: 0.45s; }
+
+.todo-item:active {
+  transform: scale(0.98) translateY(2rpx);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+.todo-icon-ring {
+  width: 72rpx;
+  height: 72rpx;
+  background: var(--warning-color-light);
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.todo-icon {
+  font-size: 36rpx;
+}
+
+.todo-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-color-dark);
+  margin-bottom: 4rpx;
+}
+
+.todo-desc {
+  font-size: 24rpx;
+  color: var(--text-color-secondary);
+}
+
+.todo-action {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: var(--primary-color-glass);
+  padding: 10rpx 24rpx;
+  border-radius: 9999rpx;
+  flex-shrink: 0;
+}
+
+/* ========== 游客欢迎区 ========== */
+.guest-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 40rpx 40rpx;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.guest-icon {
+  font-size: 96rpx;
+  margin-bottom: 20rpx;
+  filter: drop-shadow(0 4rpx 12rpx rgba(0, 0, 0, 0.15));
+}
+
+.guest-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12rpx;
+  text-align: center;
+}
+
+.guest-desc {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* 游客登录区 */
+.guest-login-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 40rpx 32rpx;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.guest-login-btn {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  background: linear-gradient(135deg, #4F46E5, #6366F1);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  border: none;
+  box-shadow: 0 8rpx 24rpx rgba(79, 70, 229, 0.3);
+  transition: all 0.2s ease;
+}
+
+.guest-login-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 4rpx 12rpx rgba(79, 70, 229, 0.2);
+}
+
+.guest-login-hint {
+  font-size: 24rpx;
+  color: var(--text-color-secondary);
+  margin-top: 16rpx;
+}
+
+/* 游客模式下的功能导航卡片无箭头（纯展示） */
+.bg-green {
+  background: linear-gradient(135deg, #059669, #10B981);
+}

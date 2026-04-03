@@ -1,0 +1,94 @@
+<!--pages/observation/list/list.wxml-->
+<view class="list-page">
+
+  <!-- 未登录提示 -->
+  <block wx:if="{{!isLoggedIn}}">
+    <view class="login-prompt">
+      <text class="login-prompt-icon">📋</text>
+      <text class="login-prompt-title">听课评课</text>
+      <text class="login-prompt-desc">登录后可查看听课记录、创建评课报告</text>
+      <button class="login-prompt-btn" bindtap="goToLogin">登录查看</button>
+    </view>
+  </block>
+
+  <!-- 已登录内容 -->
+  <block wx:else>
+    <!-- 筛选条件 -->
+    <view class="filter-bar">
+      <picker
+        class="filter-picker"
+        mode="selector"
+        range="{{filterOptions}}"
+        range-key="label"
+        value="{{filterIndex}}"
+        bindchange="handleFilterChange"
+      >
+        <view class="filter-value">
+          <text class="filter-text">{{filterOptions[filterIndex] ? filterOptions[filterIndex].label : '全部'}}</text>
+          <text class="filter-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 列表 -->
+    <view class="list-container">
+      <view
+        class="list-item"
+        wx:for="{{list}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="handleItemTap"
+      >
+        <view class="item-header">
+          <text class="item-course">{{item.courseName}}</text>
+          <status-tag status="{{item.status}}" />
+        </view>
+
+        <view class="item-info">
+          <view class="info-row">
+            <text class="info-label">授课教师：</text>
+            <text class="info-value">{{item.teacherName}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">班级：</text>
+            <text class="info-value">{{item.classInfo || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">听课时间：</text>
+            <text class="info-value">{{item.observationDateFormatted}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">听课地点：</text>
+            <text class="info-value">{{item.location}}</text>
+          </view>
+        </view>
+
+        <view class="item-footer">
+          <text class="item-time">{{item.createTimeFormatted}}</text>
+          <text class="item-arrow">›</text>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{!loading && list.length === 0}}">
+        <text class="empty-icon">📋</text>
+        <text class="empty-text">暂无听课记录</text>
+      </view>
+
+      <!-- 加载中 -->
+      <view class="loading" wx:if="{{loading}}">
+        <text>加载中...</text>
+      </view>
+
+      <!-- 没有更多 -->
+      <view class="no-more" wx:if="{{!hasMore && list.length > 0}}">
+        <text>没有更多了</text>
+      </view>
+    </view>
+
+    <!-- 创建按钮（督导可见） -->
+    <view class="create-btn" bindtap="handleCreate" wx:if="{{canCreate}}">
+      <text class="create-icon">+</text>
+    </view>
+  </block>
+</view>

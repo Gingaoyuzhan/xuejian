@@ -1,0 +1,90 @@
+/* components/user-card/user-card.wxss - Premium Redesign */
+
+.user-card {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 28rpx;
+  box-shadow: 0 8rpx 30rpx rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.user-card--small {
+  padding: 16rpx;
+  border-radius: 20rpx;
+}
+
+.user-card--large {
+  padding: 32rpx;
+  border-radius: 32rpx;
+}
+
+.user-avatar {
+  flex-shrink: 0;
+  margin-right: 24rpx;
+}
+
+.avatar-img {
+  display: block;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 6rpx 16rpx rgba(15, 23, 42, 0.08);
+}
+
+.user-card--small .avatar-img {
+  width: 72rpx;
+  height: 72rpx;
+}
+
+.user-card--medium .avatar-img {
+  width: 96rpx;
+  height: 96rpx;
+}
+
+.user-card--large .avatar-img {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.user-name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-role {
+  display: inline-flex;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  padding: 6rpx 18rpx;
+  border-radius: 9999rpx;
+  margin-top: 4rpx;
+  align-self: flex-start;
+  box-shadow: 0 4rpx 12rpx rgba(37, 99, 235, 0.2);
+}
+
+.user-department,
+.user-phone {
+  font-size: 24rpx;
+  color: var(--text-color-secondary);
+  margin-top: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

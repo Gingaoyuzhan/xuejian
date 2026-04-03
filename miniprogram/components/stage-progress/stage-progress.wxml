@@ -1,0 +1,20 @@
+<!--components/stage-progress/stage-progress.wxml-->
+<view class="stage-progress {{vertical ? 'stage-progress--vertical' : ''}}">
+  <view
+    class="stage-item-wrapper"
+    wx:for="{{renderedStages}}"
+    wx:key="key"
+  >
+    <view class="{{item.itemClass}}">
+      <view class="stage-icon">{{item.icon}}</view>
+      <view class="stage-info">
+        <text class="stage-name">{{item.name}}</text>
+      </view>
+    </view>
+
+    <view
+      class="{{item.lineClass}}"
+      wx:if="{{index < renderedStages.length - 1}}"
+    ></view>
+  </view>
+</view>

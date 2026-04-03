@@ -1,0 +1,50 @@
+<!--pages/improvement/revise/revise.wxml-->
+<view class="page" wx:if="{{task}}">
+  <view class="info-card">
+    <view class="card-title">一级检查内容</view>
+    <view class="info-row">
+      <text class="info-label">教师姓名</text>
+      <text class="info-value">{{task.teacherName || '-'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">所属学院</text>
+      <text class="info-value">{{task.collegeName || '-'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">检查日期</text>
+      <text class="info-value">{{task.formData.inspectionDate || '-'}}</text>
+    </view>
+    <view class="section-subtitle">检查学院存在问题</view>
+    <view class="content-box">{{task.formData.inspectionIssues || '-'}}</view>
+  </view>
+
+  <view class="form-card">
+    <view class="card-title">二级处理</view>
+    <view class="form-item">
+      <view class="form-label required">改进情况</view>
+      <textarea
+        class="form-textarea"
+        placeholder="请填写整改安排、落实情况或二级学院处理意见"
+        value="{{formData.improvementStatus}}"
+        bindinput="onStatusInput"
+        maxlength="3000"
+        auto-height
+        show-confirm-bar="{{false}}"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">整改附件</view>
+      <image-uploader
+        value="{{formData.revisionMaterial}}"
+        bindchange="onImageChange"
+        maxCount="9"
+      />
+      <view class="form-tip">可上传整改说明、照片或支撑材料。</view>
+    </view>
+  </view>
+
+  <view class="submit-bar">
+    <button class="submit-btn" bindtap="handleSubmit">提交高教中心复查</button>
+  </view>
+</view>

@@ -1,0 +1,133 @@
+<!--pages/login/login.wxml-->
+<view class="login-container">
+  <!-- 动态背景装饰 -->
+  <view class="bg-shape bg-shape-1"></view>
+  <view class="bg-shape bg-shape-2"></view>
+  <view class="bg-shape bg-shape-3"></view>
+
+  <view class="glass-card">
+    <!-- 未授权状态 -->
+    <block wx:if="{{!showRoleSelect}}">
+      <view class="logo-area">
+        <view class="logo-circle">
+          <text class="logo-icon">📚</text>
+        </view>
+        <view class="titles">
+          <text class="main-title">廊师质量</text>
+          <text class="sub-title">Teaching Supervision System</text>
+        </view>
+      </view>
+
+      <view class="welcome-text">
+        <text class="greeting">欢迎回来</text>
+        <text class="instruction">请授权微信登录以使用完整功能</text>
+      </view>
+
+      <button
+        class="btn-primary auth-btn"
+        bindtap="getUserProfile"
+        loading="{{authorizing}}"
+        disabled="{{authorizing}}"
+      >
+        <text class="btn-text">微信快捷登录</text>
+      </button>
+    </block>
+
+    <!-- 角色选择和补充信息 -->
+    <block wx:if="{{showRoleSelect}}">
+      <view class="profile-header">
+        <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill" />
+        <view class="welcome-back">
+          <text>你好，</text>
+          <text class="nickname">{{userInfo.nickName || '用户'}}</text>
+        </view>
+      </view>
+
+      <view class="form-container">
+        <text class="section-title">选择您的身份</text>
+        <text class="section-tip">支持多选。若同时拥有高教中心或督导身份，系统将按高权限开放查看范围。</text>
+        
+        <view class="role-grid">
+          <view
+            class="role-card {{selectedRoles.indexOf(item.value) > -1 ? 'active' : ''}}"
+            wx:for="{{roleList}}"
+            wx:key="value"
+            data-role="{{item.value}}"
+            bindtap="selectRole"
+          >
+            <view class="role-icon-box">{{item.icon}}</view>
+            <text class="role-name">{{item.label}}</text>
+            <view class="check-circle" wx:if="{{selectedRoles.indexOf(item.value) > -1}}"></view>
+          </view>
+        </view>
+
+        <view class="input-group">
+          <view class="input-wrapper">
+            <text class="input-icon">👤</text>
+            <input
+              class="custom-input"
+              placeholder="您的真实姓名"
+              placeholder-class="input-placeholder"
+              value="{{name}}"
+              bindinput="onNameInput"
+            />
+          </view>
+          
+          <view class="input-wrapper">
+            <text class="input-icon">📱</text>
+            <input
+              class="custom-input"
+              type="number"
+              placeholder="您的手机号码"
+              placeholder-class="input-placeholder"
+              value="{{phone}}"
+              bindinput="onPhoneInput"
+              maxlength="11"
+            />
+          </view>
+          
+          <view class="input-wrapper">
+            <text class="input-icon">🏢</text>
+            <input
+              class="custom-input"
+              placeholder="所属部门或单位"
+              placeholder-class="input-placeholder"
+              value="{{department}}"
+              bindinput="onDepartmentInput"
+            />
+          </view>
+          
+          <view class="input-wrapper" wx:if="{{selectedRoles.indexOf('admin') > -1}}">
+            <text class="input-icon">🔑</text>
+            <input
+              class="custom-input"
+              type="password"
+              placeholder="管理员授权码"
+              placeholder-class="input-placeholder"
+              value="{{password}}"
+              bindinput="onPasswordInput"
+            />
+          </view>
+        </view>
+
+        <!-- 协议勾选 -->
+        <view class="agreement-check">
+          <view class="check-box {{agreed ? 'checked' : ''}}" bindtap="toggleAgreement">
+            <text wx:if="{{agreed}}" class="check-mark">✓</text>
+          </view>
+          <view class="agreement-text">
+            <text class="agreement-label">我已阅读并同意</text>
+            <text class="agreement-link" bindtap="openServiceAgreement">《用户服务协议》</text>
+            <text class="agreement-label">和</text>
+            <text class="agreement-link" bindtap="openPrivacyPolicy">《隐私政策》</text>
+          </view>
+        </view>
+
+        <button class="btn-primary submit-btn" bindtap="handleLogin">
+          <text class="btn-text">进入系统</text>
+          <text class="btn-arrow">→</text>
+        </button>
+      </view>
+    </block>
+  </view>
+</view>

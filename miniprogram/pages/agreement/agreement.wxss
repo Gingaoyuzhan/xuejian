@@ -1,0 +1,54 @@
+/* pages/agreement/agreement.wxss - 协议页面共享样式 */
+.agreement-page {
+  min-height: 100vh;
+  background: var(--page-bg-color);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.agreement-header {
+  background: linear-gradient(145deg, #1E40AF 0%, #2563EB 40%, #3B82F6 100%);
+  padding: 60rpx 40rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.agreement-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12rpx;
+}
+
+.agreement-update {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.agreement-content {
+  padding: 24rpx 32rpx;
+}
+
+.section {
+  background: var(--card-bg-color);
+  border-radius: var(--radius-lg);
+  padding: 28rpx 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin-bottom: 16rpx;
+}
+
+.section-text {
+  font-size: 26rpx;
+  color: var(--text-color-primary);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}

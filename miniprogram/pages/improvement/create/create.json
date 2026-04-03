@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "image-uploader": "/components/image-uploader/image-uploader"
+  },
+  "navigationBarTitleText": "创建改进任务"
+}

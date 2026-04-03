@@ -1,0 +1,52 @@
+<!--pages/observation/audit/audit.wxml-->
+<view class="audit-page">
+  <view class="list-container">
+    <view
+      class="list-item"
+      wx:for="{{list}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="handleItemTap"
+    >
+      <view class="item-header">
+        <text class="item-course">{{item.courseName}}</text>
+        <status-tag status="{{item.status}}" type="pending" />
+      </view>
+
+      <view class="item-info">
+        <view class="info-row">
+          <text class="info-label">授课教师：</text>
+          <text class="info-value">{{item.teacherName}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">督导教师：</text>
+          <text class="info-value">{{item.supervisorName}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">听课时间：</text>
+          <text class="info-value">{{item.observationDateFormatted}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">听课地点：</text>
+          <text class="info-value">{{item.location}}</text>
+        </view>
+      </view>
+
+      <view class="item-footer">
+        <text class="item-time">{{item.createTimeFormatted}}</text>
+        <text class="item-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && list.length === 0}}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无待审核记录</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+  </view>
+</view>
