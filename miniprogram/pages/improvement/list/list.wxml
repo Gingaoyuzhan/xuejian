@@ -4,10 +4,10 @@
   <!-- 未登录提示 -->
   <block wx:if="{{!isLoggedIn}}">
     <view class="login-prompt">
-      <text class="login-prompt-icon">💡</text>
+      <text class="login-prompt-icon">📈</text>
       <text class="login-prompt-title">持续改进</text>
-      <text class="login-prompt-desc">登录后可查看改进任务、跟踪改进进度</text>
-      <button class="login-prompt-btn" bindtap="goToLogin">登录查看</button>
+      <text class="login-prompt-desc">游客可先浏览持续改进流程说明，需查看任务和进度时再自愿登录</text>
+      <button class="login-prompt-btn" bindtap="goToLogin">按需登录后查看</button>
     </view>
   </block>
 

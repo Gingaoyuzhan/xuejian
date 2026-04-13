@@ -4,11 +4,20 @@
  * 获取用户信息并进行角色选择
  */
 
-import { login as loginApi } from '../../utils/request.js';
+import { login as loginApi, getLoginPrefill } from '../../utils/request.js';
 import { showToast } from '../../utils/util.js';
 import { USER_ROLE, USER_ROLE_NAME, normalizeRoles, getPrimaryRole } from '../../utils/constants.js';
 
 const app = getApp();
+const ROLE_TEXT_OVERRIDES = {};
+
+function getDisplayRoleName(role) {
+  return ROLE_TEXT_OVERRIDES[role] || USER_ROLE_NAME[role] || role;
+}
+
+function getPrivilegedRoles(roles = []) {
+  return normalizeRoles(roles).filter(role => role !== USER_ROLE.TEACHER);
+}
 
 Page({
   /**
@@ -16,21 +25,25 @@ Page({
    */
   data: {
     // 用户信息
-    userInfo: null,
+    userInfo: {
+      avatarUrl: '',
+      nickName: ''
+    },
     // 是否授权中
     authorizing: false,
     // 是否显示角色选择
-    showRoleSelect: false,
+    showRoleSelect: true,
     // 可选角色列表
     roleList: [
-      { value: USER_ROLE.SUPERVISOR, label: USER_ROLE_NAME[USER_ROLE.SUPERVISOR], icon: '📋' },
-      { value: USER_ROLE.TEACHER, label: USER_ROLE_NAME[USER_ROLE.TEACHER], icon: '👨‍🏫' },
-      { value: USER_ROLE.COLLEGE, label: USER_ROLE_NAME[USER_ROLE.COLLEGE], icon: '🏢' },
-      { value: USER_ROLE.DEPARTMENT_LEADER, label: USER_ROLE_NAME[USER_ROLE.DEPARTMENT_LEADER], icon: '🏫' },
-      { value: USER_ROLE.ADMIN, label: USER_ROLE_NAME[USER_ROLE.ADMIN], icon: '👔' }
+      { value: USER_ROLE.SUPERVISOR, label: getDisplayRoleName(USER_ROLE.SUPERVISOR), icon: '🧭' },
+      { value: USER_ROLE.TEACHER, label: getDisplayRoleName(USER_ROLE.TEACHER), icon: '👨‍🏫' },
+      { value: USER_ROLE.COLLEGE, label: getDisplayRoleName(USER_ROLE.COLLEGE), icon: '🏢' },
+      { value: USER_ROLE.DEPARTMENT_LEADER, label: getDisplayRoleName(USER_ROLE.DEPARTMENT_LEADER), icon: '📊' },
+      { value: USER_ROLE.ADMIN, label: getDisplayRoleName(USER_ROLE.ADMIN), icon: '🔐' }
     ],
     // 选中的角色
     selectedRoles: [],
+    selectedRoleText: '',
     // 手机号
     phone: '',
     // 姓名
@@ -39,6 +52,11 @@ Page({
     department: '',
     // 管理员密码
     password: '',
+    // 管理员预开通身份自动填充
+    prefillLocked: false,
+    prefillMatched: false,
+    prefillLoading: false,
+    prefillMessage: '',
     // 是否同意协议
     agreed: false
   },
@@ -47,6 +65,7 @@ Page({
    * 生命周期
    */
   onLoad() {
+    this.prefillRequestId = 0;
     // 检查是否已登录
     if (app.globalData.isLoggedIn) {
       this.redirectToHome();
@@ -54,33 +73,41 @@ Page({
     }
   },
 
+  getSelectedRoleText(roles = []) {
+    return roles.map(role => getDisplayRoleName(role)).join(' / ');
+  },
+
   /**
-   * 获取微信用户信息（新版API，无需授权）
+   * 获取微信用户信息（新版API，无需授权或降级处理）
    */
   async getUserProfile() {
-    try {
-      this.setData({ authorizing: true });
+    this.setData({ authorizing: true });
 
-      // 获取用户信息
+    try {
+      // 尝试获取用户信息
       const profileRes = await wx.getUserProfile({
         desc: '用于完善用户资料'
       });
 
-      const userInfo = profileRes.userInfo;
-
       this.setData({
-        userInfo,
-        showRoleSelect: true,
+        userInfo: profileRes.userInfo,
         authorizing: false
       });
-
     } catch (err) {
-      console.error('获取用户信息失败:', err);
-      this.setData({ authorizing: false });
-      // 用户取消授权
-      if (err.errMsg.includes('cancel')) {
-        showToast('您需要授权才能使用', 'none');
+      console.warn('获取用户信息失败/降级:', err);
+      // 头像昵称授权不是登录前置条件，失败后仍可直接填写资料登录
+      if (err.errMsg && !err.errMsg.includes('cancel')) {
+        showToast('获取微信头像昵称失败，可直接填写登录信息', 'none');
       }
+
+      this.setData({
+        userInfo: {
+          ...(this.data.userInfo || {}),
+          avatarUrl: this.data.userInfo?.avatarUrl || '',
+          nickName: this.data.userInfo?.nickName || ''
+        },
+        authorizing: false
+      });
     }
   },
 
@@ -97,7 +124,10 @@ Page({
     }
 
     this.setData({
-      selectedRoles: [...selectedRoles]
+      selectedRoles: [...selectedRoles],
+      selectedRoleText: this.getSelectedRoleText([...selectedRoles])
+    }, () => {
+      this.syncPrefill();
     });
   },
 
@@ -107,6 +137,8 @@ Page({
   onPhoneInput(e) {
     this.setData({
       phone: e.detail.value
+    }, () => {
+      this.syncPrefill();
     });
   },
 
@@ -114,6 +146,7 @@ Page({
    * 姓名输入
    */
   onNameInput(e) {
+    if (this.data.prefillLocked) return;
     this.setData({
       name: e.detail.value
     });
@@ -123,9 +156,66 @@ Page({
    * 部门输入
    */
   onDepartmentInput(e) {
+    if (this.data.prefillLocked) return;
     this.setData({
       department: e.detail.value
     });
+  },
+
+  async syncPrefill() {
+    const phone = String(this.data.phone || '').trim();
+    const privilegedRoles = getPrivilegedRoles(this.data.selectedRoles);
+
+    if (!/^1[3-9]\d{9}$/.test(phone) || privilegedRoles.length === 0) {
+      this.prefillRequestId += 1;
+      this.setData({
+        prefillLocked: false,
+        prefillMatched: false,
+        prefillLoading: false,
+        prefillMessage: ''
+      });
+      return;
+    }
+
+    const requestId = (this.prefillRequestId || 0) + 1;
+    this.prefillRequestId = requestId;
+    this.setData({
+      prefillLoading: true,
+      prefillMessage: '正在匹配管理员预开通身份...'
+    });
+
+    try {
+      const res = await getLoginPrefill(phone, privilegedRoles);
+      if (this.prefillRequestId !== requestId) return;
+
+      if (res.exists) {
+        this.setData({
+          name: res.name || this.data.name,
+          department: res.department || this.data.department,
+          prefillLocked: Boolean(res.locked),
+          prefillMatched: true,
+          prefillLoading: false,
+          prefillMessage: '已匹配管理员预开通身份，姓名和单位已自动填充'
+        });
+        return;
+      }
+
+      this.setData({
+        prefillLocked: false,
+        prefillMatched: false,
+        prefillLoading: false,
+        prefillMessage: '未匹配到管理员预开通身份，提交时系统会按开通状态校验'
+      });
+    } catch (err) {
+      if (this.prefillRequestId !== requestId) return;
+      console.warn('获取登录预填充失败:', err);
+      this.setData({
+        prefillLocked: false,
+        prefillMatched: false,
+        prefillLoading: false,
+        prefillMessage: ''
+      });
+    }
   },
 
   /**
@@ -240,7 +330,14 @@ Page({
 
     } catch (err) {
       wx.hideLoading();
-      console.error('登录失败:', err);
+      console.error('登录失败:', {
+        apiBaseUrl: app.globalData.apiBaseUrl,
+        error: err
+      });
+      if ((err.message || '').includes('缺少 openid')) {
+        showToast('后端仍是旧版登录接口，请先部署最新服务端', 'none');
+        return;
+      }
       showToast(err.message || '登录失败，请重试', 'none');
     }
   },

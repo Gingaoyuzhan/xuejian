@@ -89,7 +89,7 @@ Page({
       return;
     }
 
-    const confirmed = await showConfirm('确认提交督导复核吗？', '确认提交');
+    const confirmed = await showConfirm('确认提交学校督导复核吗？', '确认提交');
     if (!confirmed) return;
 
     await this.submitCheck(true);
@@ -120,7 +120,7 @@ Page({
         images: this.data.formData.images
       });
 
-      showToast(approved ? '已提交督导复核' : '已退回', 'success');
+      showToast(approved ? '已提交学校督导复核' : '已退回', 'success');
       setTimeout(() => wx.navigateBack(), 1000);
     } catch (err) {
       console.error('提交失败:', err);

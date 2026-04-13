@@ -8,9 +8,9 @@
     <!-- ===== 游客模式：未登录时展示功能介绍 ===== -->
     <block wx:if="{{!isLoggedIn}}">
       <view class="guest-welcome">
-        <view class="guest-icon">🎓</view>
-        <text class="guest-title">廊师质量</text>
-        <text class="guest-desc">支持听课评课记录、教学持续改进跟踪、多角色协同管理</text>
+        <view class="guest-icon">📊</view>
+        <text class="guest-title">廊坊师范学院教学质量监控系统</text>
+        <text class="guest-desc">支持校领导、学校督导听课，高教中心统一反馈，形成教学质量监控与持续改进闭环</text>
       </view>
 
       <!-- 功能介绍卡片 -->
@@ -25,13 +25,13 @@
           </view>
           <view class="nav-info">
             <text class="nav-title">听课评课</text>
-            <text class="nav-desc">督导随堂听课，记录课堂表现与教学建议</text>
+            <text class="nav-desc">校领导、学校督导随堂听课，记录课堂表现与教学建议</text>
           </view>
         </view>
 
         <view class="nav-card">
           <view class="nav-icon-box bg-purple">
-            <text class="nav-emoji">💡</text>
+            <text class="nav-emoji">📈</text>
           </view>
           <view class="nav-info">
             <text class="nav-title">持续改进</text>
@@ -41,19 +41,19 @@
 
         <view class="nav-card">
           <view class="nav-icon-box bg-green">
-            <text class="nav-emoji">👥</text>
+            <text class="nav-emoji">🤝</text>
           </view>
           <view class="nav-info">
             <text class="nav-title">多角色协同</text>
-            <text class="nav-desc">督导、教师、高教中心、二级学院领导协同联动</text>
+            <text class="nav-desc">校领导、学校督导、教师、高教中心等多角色协同联动</text>
           </view>
         </view>
       </view>
 
       <!-- 登录入口 -->
       <view class="guest-login-section">
-        <button class="guest-login-btn" bindtap="goToLogin">登录 / 注册</button>
-        <text class="guest-login-hint">登录后可使用全部功能</text>
+        <button class="guest-login-btn" bindtap="goToLogin">按需登录 / 注册</button>
+        <text class="guest-login-hint">可先浏览功能服务，决定使用后再登录</text>
       </view>
     </block>
 
@@ -109,7 +109,7 @@
           </view>
           <view class="nav-info">
             <text class="nav-title">听课评课</text>
-            <text class="nav-desc">记录课堂表现与建议</text>
+            <text class="nav-desc">校领导、学校督导记录课堂表现，高教中心统一审核反馈</text>
           </view>
           <view class="nav-arrow">
             <text class="icon-right-arrow"></text>
@@ -118,7 +118,7 @@
 
         <view class="nav-card" bindtap="goToImprovementList">
           <view class="nav-icon-box bg-purple">
-            <text class="nav-emoji">💡</text>
+            <text class="nav-emoji">📈</text>
           </view>
           <view class="nav-info">
             <text class="nav-title">持续改进</text>

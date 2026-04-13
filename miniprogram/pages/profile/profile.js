@@ -85,17 +85,11 @@ Page({
         {
           id: 'my-improvements',
           title: '持续改进事项',
-          icon: '🔍',
+          icon: '📈',
           url: '/pages/improvement/list/list?filter=all'
         }
       ],
       [USER_ROLE.TEACHER]: [
-        {
-          id: 'about-me',
-          title: '关于我的听课记录',
-          icon: '📋',
-          url: '/pages/observation/list/list?filter=about'
-        },
         {
           id: 'my-tasks',
           title: '我的改进任务',
@@ -127,11 +121,17 @@ Page({
         {
           id: 'college-improvements',
           title: '持续改进事项',
-          icon: '🔍',
+          icon: '📈',
           url: '/pages/improvement/list/list?filter=all'
         }
       ],
       [USER_ROLE.DEPARTMENT_LEADER]: [
+        {
+          id: 'my-observations',
+          title: '我的听课记录',
+          icon: '📋',
+          url: '/pages/observation/list/list?filter=my'
+        },
         {
           id: 'department-improvements',
           title: '本院持续改进',

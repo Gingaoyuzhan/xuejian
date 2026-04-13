@@ -2,7 +2,7 @@
 <view class="create-page">
   <view class="page-intro">
     <view class="intro-title">持续改进检查表</view>
-    <view class="intro-desc">一级由督导或高教中心发起，二级学院或教师整改后进入复查、复核；如被退回则重新回到二级处理，形成循环闭环。</view>
+    <view class="intro-desc">一级由学校督导或高教中心发起，校领导或教师整改后进入复查、复核；如被退回则重新回到二级处理，形成循环闭环。</view>
   </view>
 
   <view class="paper-sheet">

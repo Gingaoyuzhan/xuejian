@@ -6,12 +6,13 @@ const express = require('express');
 const router = express.Router();
 const { query, insert } = require('../db');
 const { toCamelCase, parseJsonFields, normalizeRoles, hasRole, hasAnyRole, getPrimaryRole } = require('../utils');
+const { getUserByIdWithRoles, findUserByNameWithRole, getUserIdsByDepartmentRole } = require('../user-role-store');
 
 const ROLE_LABEL = {
-    supervisor: '督导',
+    supervisor: '学校督导',
     teacher: '教师',
     college: '高教中心',
-    department_leader: '二级学院领导',
+    department_leader: '校领导',
     admin: '管理员'
 };
 
@@ -20,9 +21,11 @@ const ACTION_LABEL = {
     revise: '二级处理',
     college_check_pass: '高教中心复查通过',
     college_check_return: '高教中心退回',
-    supervisor_approve: '督导复核通过',
-    supervisor_return: '督导退回'
+    supervisor_approve: '学校督导复核通过',
+    supervisor_return: '学校督导退回'
 };
+
+const IMPROVEMENT_CREATOR_ROLES = Object.keys(ROLE_LABEL);
 
 function getActor(req) {
     if (!req.user || !req.user.id || !req.user.role) {
@@ -78,8 +81,7 @@ function safeArray(value) {
 }
 
 async function getUserById(userId) {
-    const rows = await query('SELECT id, name, role, department FROM users WHERE id = ?', [userId]);
-    return rows[0] || null;
+    return getUserByIdWithRoles(userId);
 }
 
 async function findSupervisorByName(name) {
@@ -88,11 +90,7 @@ async function findSupervisorByName(name) {
         return null;
     }
 
-    const rows = await query(
-        'SELECT id, name, role, department FROM users WHERE role = ? AND name = ? LIMIT 1',
-        ['supervisor', normalizedName]
-    );
-    return rows[0] || null;
+    return findUserByNameWithRole(normalizedName, 'supervisor');
 }
 
 async function getDepartmentTeacherIds(userId) {
@@ -101,12 +99,7 @@ async function getDepartmentTeacherIds(userId) {
         return [];
     }
 
-    const teacherRows = await query(
-        'SELECT id FROM users WHERE role = ? AND department = ?',
-        ['teacher', user.department]
-    );
-
-    return teacherRows.map(item => item.id);
+    return getUserIdsByDepartmentRole(user.department, 'teacher');
 }
 
 async function findTeacherByName(name) {
@@ -115,11 +108,7 @@ async function findTeacherByName(name) {
         return null;
     }
 
-    const rows = await query(
-        'SELECT id, name, role, department FROM users WHERE role = ? AND name = ? LIMIT 1',
-        ['teacher', normalizedName]
-    );
-    return rows[0] || null;
+    return findUserByNameWithRole(normalizedName, 'teacher');
 }
 
 function parseHistory(historyValue) {
@@ -193,7 +182,7 @@ function getStageText(stage) {
         submitted: '一级发起',
         revising: '二级处理',
         college_check: '高教中心复查',
-        supervisor_review: '督导复核',
+        supervisor_review: '学校督导复核',
         completed: '闭环完成'
     };
     return map[stage] || stage;
@@ -203,10 +192,10 @@ function getWorkflowChain(currentStage) {
     const stageOrder = ['submitted', 'revising', 'college_check', 'supervisor_review', 'completed'];
     const currentIndex = stageOrder.indexOf(currentStage);
     return [
-        { key: 'submitted', title: '一级发起', actorText: '督导 / 高教中心', status: currentIndex > 0 ? 'completed' : (currentStage === 'submitted' ? 'active' : 'pending') },
-        { key: 'revising', title: '二级处理', actorText: '二级学院领导 / 教师', status: currentIndex > 1 ? 'completed' : (currentStage === 'revising' ? 'active' : 'pending') },
+        { key: 'submitted', title: '一级发起', actorText: '学校督导 / 高教中心', status: currentIndex > 0 ? 'completed' : (currentStage === 'submitted' ? 'active' : 'pending') },
+        { key: 'revising', title: '二级处理', actorText: '校领导 / 教师', status: currentIndex > 1 ? 'completed' : (currentStage === 'revising' ? 'active' : 'pending') },
         { key: 'college_check', title: '高教中心复查', actorText: '高教中心', status: currentIndex > 2 ? 'completed' : (currentStage === 'college_check' ? 'active' : 'pending') },
-        { key: 'supervisor_review', title: '督导复核', actorText: '督导', status: currentIndex > 3 ? 'completed' : (currentStage === 'supervisor_review' ? 'active' : 'pending') },
+        { key: 'supervisor_review', title: '学校督导复核', actorText: '学校督导', status: currentIndex > 3 ? 'completed' : (currentStage === 'supervisor_review' ? 'active' : 'pending') },
         { key: 'completed', title: '闭环完成', actorText: '流程结束', status: currentStage === 'completed' ? 'active' : 'pending' }
     ];
 }
@@ -243,7 +232,7 @@ function buildImprovementSnapshot(record) {
         reviewSummaryLines.push(`高教中心：${collegeReviewStatus}`);
     }
     if (supervisorReviewStatus) {
-        reviewSummaryLines.push(`督导：${supervisorReviewStatus}`);
+        reviewSummaryLines.push(`学校督导：${supervisorReviewStatus}`);
     }
 
     const inspectionIssues = normalizeText(submitData.inspectionIssues || record.description);
@@ -389,9 +378,9 @@ router.post('/create', async (req, res) => {
             operatorRole
         } = req.body;
 
-        const createRole = resolveOperationRole(actor, ['college', 'supervisor'], operatorRole);
+        const createRole = resolveOperationRole(actor, IMPROVEMENT_CREATOR_ROLES, operatorRole) || actor.role;
         if (!createRole) {
-            return res.json({ code: 403, message: '只有督导或高教中心可以发起持续改进事项', data: null });
+            return res.json({ code: 403, message: '当前账号无权发起持续改进事项', data: null });
         }
 
         if (!normalizeText(teacherName)) {
@@ -415,7 +404,7 @@ router.post('/create', async (req, res) => {
 
         if (finalTeacherId) {
             const teacher = await getUserById(finalTeacherId);
-            if (teacher && teacher.role === 'teacher') {
+            if (teacher && hasRole(teacher, 'teacher')) {
                 finalTeacherId = teacher.id;
                 finalTeacherName = teacher.name;
                 teacherDepartment = teacher.department || teacherDepartment;
@@ -433,13 +422,6 @@ router.post('/create', async (req, res) => {
 
         if (!finalTeacherId) {
             return res.json({ code: 400, message: '未找到该教师，请先确认教师已注册', data: null });
-        }
-
-        if (createRole === 'college') {
-            const collegeUser = await getUserById(actor.id);
-            if (collegeUser?.department && teacherDepartment && collegeUser.department !== teacherDepartment) {
-                return res.json({ code: 403, message: '只能发起本部门教师的持续改进事项', data: null });
-            }
         }
 
         const issueImages = safeArray(images);
@@ -507,12 +489,16 @@ router.get('/list', async (req, res) => {
 
         switch (filter) {
             case 'my':
-            case 'todos':
-            case 'created': {
+            case 'todos': {
                 if (!hasRole(actor, 'teacher')) {
                     return res.json({ code: 403, message: '只有教师可以查看自己的持续改进事项', data: null });
                 }
                 whereClauses.push('teacher_id = ?');
+                params.push(userId);
+                break;
+            }
+            case 'created': {
+                whereClauses.push("CAST(JSON_UNQUOTE(JSON_EXTRACT(history, '$[0].operatorId')) AS UNSIGNED) = ?");
                 params.push(userId);
                 break;
             }
@@ -544,7 +530,7 @@ router.get('/list', async (req, res) => {
             }
             case 'supervisor_review': {
                 if (!hasRole(actor, 'supervisor')) {
-                    return res.json({ code: 403, message: '只有督导可以查看待复核事项', data: null });
+                    return res.json({ code: 403, message: '只有学校督导可以查看待复核事项', data: null });
                 }
                 whereClauses.push("stage = 'supervisor_review'");
                 break;
@@ -565,10 +551,9 @@ router.get('/list', async (req, res) => {
             }
             case 'college': {
                 if (hasRole(actor, 'college')) {
-                    const userRows = await query('SELECT department FROM users WHERE id = ?', [userId]);
-                    if (userRows.length > 0 && userRows[0].department) {
-                        const teacherRows = await query('SELECT id FROM users WHERE role = ? AND department = ?', ['teacher', userRows[0].department]);
-                        const teacherIds = teacherRows.map(t => t.id);
+                    const currentUser = await getUserById(userId);
+                    if (currentUser?.department) {
+                        const teacherIds = await getUserIdsByDepartmentRole(currentUser.department, 'teacher');
                         if (teacherIds.length === 0) {
                             return res.json({ code: 0, message: '获取成功', data: { list: [], total: 0, limit: queryLimit, skip: querySkip } });
                         }
@@ -584,7 +569,7 @@ router.get('/list', async (req, res) => {
             }
             case 'department': {
                 if (!hasRole(actor, 'department_leader')) {
-                    return res.json({ code: 403, message: '只有二级学院领导可以查看本院事项', data: null });
+                    return res.json({ code: 403, message: '只有校领导可以查看本院事项', data: null });
                 }
                 const teacherIds = await getDepartmentTeacherIds(userId);
                 if (teacherIds.length === 0) {
@@ -678,10 +663,19 @@ router.get('/detail/:id', async (req, res) => {
         const canView = sameTeacher || sameDepartmentLeader || hasAnyRole(actor, ['college', 'supervisor', 'admin']);
 
         if (!canView) {
-            return res.json({ code: 403, message: '该持续改进事项仅督导、高教中心、二级学院领导及相关教师可见', data: null });
+            return res.json({ code: 403, message: '该持续改进事项仅学校督导、高教中心、校领导及相关教师可见', data: null });
         }
 
-        res.json({ code: 0, message: '获取成功', data: normalizeImprovementRecord(record) });
+        const normalizedRecord = normalizeImprovementRecord(record);
+        const canViewHistory = hasAnyRole(actor, ['admin']);
+
+        if (!canViewHistory) {
+            normalizedRecord.stageHistory = [];
+        }
+
+        normalizedRecord.canViewHistory = canViewHistory;
+
+        res.json({ code: 0, message: '获取成功', data: normalizedRecord });
     } catch (err) {
         console.error('获取持续改进详情失败:', err);
         res.json({ code: -1, message: '获取失败，请重试', data: null });
@@ -758,13 +752,13 @@ router.post('/advance', async (req, res) => {
         }
 
         if (['revise', 'submit'].includes(action) && !['teacher', 'department_leader'].includes(actionRole)) {
-            return res.json({ code: 403, message: '只有教师或二级学院领导可以填写改进情况', data: null });
+            return res.json({ code: 403, message: '只有教师或校领导可以填写改进情况', data: null });
         }
         if ((action === 'college_check_pass' || action === 'college_check_return') && actionRole !== 'college') {
             return res.json({ code: 403, message: '只有高教中心可以执行复查', data: null });
         }
         if ((action === 'supervisor_approve' || action === 'supervisor_return') && actionRole !== 'supervisor') {
-            return res.json({ code: 403, message: '只有督导可以执行复核', data: null });
+            return res.json({ code: 403, message: '只有学校督导可以执行复核', data: null });
         }
 
         if (actionRole === 'teacher' && Number(record.teacher_id) !== Number(actor.id)) {
@@ -775,14 +769,6 @@ router.post('/advance', async (req, res) => {
             const leaderUser = await getUserById(actor.id);
             const teacherUser = await getUserById(record.teacher_id);
             if (!leaderUser || !teacherUser || !leaderUser.department || leaderUser.department !== teacherUser.department) {
-                return res.json({ code: 403, message: '只能处理本部门教师的持续改进事项', data: null });
-            }
-        }
-
-        if (actionRole === 'college') {
-            const collegeUser = await getUserById(actor.id);
-            const teacherUser = await getUserById(record.teacher_id);
-            if (!collegeUser || !teacherUser || !collegeUser.department || collegeUser.department !== teacherUser.department) {
                 return res.json({ code: 403, message: '只能处理本部门教师的持续改进事项', data: null });
             }
         }
@@ -844,5 +830,56 @@ router.post('/advance', async (req, res) => {
         res.json({ code: -1, message: '操作失败，请重试', data: null });
     }
 });
+
+async function handleDeleteImprovement(req, res) {
+    try {
+        const actor = getActor(req);
+        if (!actor) {
+            return unauthorized(res);
+        }
+
+        const recordId = req.params.id;
+        const rows = await query('SELECT * FROM improvements WHERE id = ?', [recordId]);
+        if (rows.length === 0) {
+            return res.json({ code: 404, message: '记录不存在', data: null });
+        }
+
+        const record = rows[0];
+        const isAdmin = hasAnyRole(actor, ['admin']);
+
+        // 查找发起人
+        const history = parseHistory(record.history);
+        const submitEntry = history.find(item => item.action === 'submit');
+        const isCreator = submitEntry && Number(submitEntry.operatorId) === Number(actor.id);
+
+        if (!isCreator && !isAdmin) {
+            return res.json({ code: 403, message: '只有发起人或管理员可以删除', data: null });
+        }
+
+        // 已闭环的非管理员不可删
+        if (record.stage === 'completed' && !isAdmin) {
+            return res.json({ code: -1, message: '已闭环的记录不能删除，请联系管理员', data: null });
+        }
+
+        await query('DELETE FROM improvements WHERE id = ?', [recordId]);
+
+        res.json({ code: 0, message: '删除成功', data: null });
+    } catch (err) {
+        console.error('删除持续改进失败:', err);
+        res.json({ code: -1, message: '删除失败，请重试', data: null });
+    }
+}
+
+/**
+ * DELETE /api/improvement/delete/:id
+ * 删除持续改进记录（发起人或管理员可删除）
+ */
+router.delete('/delete/:id', handleDeleteImprovement);
+
+/**
+ * POST /api/improvement/delete/:id
+ * 删除持续改进兼容入口，避免代理层或旧环境对 DELETE 支持不一致
+ */
+router.post('/delete/:id', handleDeleteImprovement);
 
 module.exports = router;

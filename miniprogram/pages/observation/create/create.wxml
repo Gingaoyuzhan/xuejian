@@ -2,46 +2,49 @@
 <view class="create-page">
   <view class="page-intro">
     <view class="intro-title">听课评课表</view>
-    <view class="intro-desc">按纸质表格样式填写听课记录，并在下方上传现场照片。</view>
+    <view class="intro-desc">校领导或学校督导按纸质表格样式填写听课记录，提交后由高教中心统一审核反馈。</view>
   </view>
 
   <view class="paper-sheet">
     <view class="sheet-title">表一：听课基本信息</view>
 
     <view class="sheet-table">
-      <view class="sheet-row">
+      <view class="sheet-row schedule-row">
         <view class="sheet-cell label wide">听课时间</view>
         <picker
-          class="sheet-cell value flex-cell"
+          class="sheet-cell value schedule-cell"
           mode="date"
           value="{{formData.observationDate}}"
           start="2024-01-01"
           end="2030-12-31"
           bindchange="onDateChange"
         >
-          <view class="date-inline {{formData.observationDate ? '' : 'placeholder'}}">
-            <text>{{dateDisplay.year}}</text>
-            <text class="date-unit">年</text>
-            <text>{{dateDisplay.month}}</text>
-            <text class="date-unit">月</text>
-            <text>{{dateDisplay.day}}</text>
-            <text class="date-unit">日</text>
-            <text class="date-weekday">{{dateDisplay.weekday}}</text>
+          <view class="schedule-grid">
+            <view class="schedule-card schedule-card-date">
+              <view class="schedule-label">日期</view>
+              <view class="schedule-date {{formData.observationDate ? '' : 'placeholder'}}">
+                <text class="schedule-date-text">{{dateDisplay.text}}</text>
+                <text class="schedule-weekday-badge" wx:if="{{formData.observationDate}}">{{dateDisplay.weekday}}</text>
+              </view>
+            </view>
           </view>
         </picker>
-        <view class="sheet-cell label">节次</view>
-        <view class="sheet-cell value fixed-cell">
-          <view class="lesson-inline">
-            <text>第</text>
-            <input
-              class="lesson-input"
-              type="number"
-              placeholder="节"
-              value="{{formData.lessonNumber}}"
-              data-field="lessonNumber"
-              bindinput="onInputChange"
-            />
-            <text>节</text>
+        <view class="sheet-cell label lesson-label">节次</view>
+        <view class="sheet-cell value lesson-cell">
+          <view class="schedule-card schedule-card-lesson">
+            <view class="schedule-label">课节</view>
+            <view class="schedule-lesson">
+              <text class="schedule-lesson-prefix">第</text>
+              <input
+                class="schedule-lesson-input"
+                type="number"
+                placeholder="请输入"
+                value="{{formData.lessonNumber}}"
+                data-field="lessonNumber"
+                bindinput="onInputChange"
+              />
+              <text class="schedule-lesson-suffix">节</text>
+            </view>
           </view>
         </view>
       </view>

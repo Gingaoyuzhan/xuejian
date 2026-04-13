@@ -11,7 +11,12 @@ const { testConnection } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'jiaoxuejiandu_secret_key_2026';
+const HOST = process.env.HOST || (process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1');
+const JWT_SECRET = String(process.env.JWT_SECRET || '').trim();
+
+if (!JWT_SECRET) {
+    throw new Error('缺少必填环境变量 JWT_SECRET');
+}
 
 app.set('trust proxy', true);
 
@@ -91,10 +96,11 @@ async function startServer() {
         console.error('   如尚未建表，请先执行: mysql -u root -p < init.sql');
     }
 
-    app.listen(PORT, () => {
-        console.log(`🚀 服务器已启动: http://localhost:${PORT}`);
-        console.log(`📡 API 基础路径: http://localhost:${PORT}/api`);
-        console.log(`🏥 健康检查: http://localhost:${PORT}/api/health`);
+    app.listen(PORT, HOST, () => {
+        const displayHost = HOST === '0.0.0.0' ? 'localhost' : HOST;
+        console.log(`🚀 服务器已启动: http://${displayHost}:${PORT}`);
+        console.log(`📡 API 基础路径: http://${displayHost}:${PORT}/api`);
+        console.log(`🏥 健康检查: http://${displayHost}:${PORT}/api/health`);
     });
 }
 

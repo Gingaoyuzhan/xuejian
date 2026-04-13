@@ -2,18 +2,18 @@
 <view class="agreement-page">
   <view class="agreement-header">
     <text class="agreement-title">用户服务协议</text>
-    <text class="agreement-update">更新日期：2026年3月4日</text>
+    <text class="agreement-update">更新日期：2026年4月7日</text>
   </view>
 
   <view class="agreement-content">
     <view class="section">
       <text class="section-title">一、总则</text>
-      <text class="section-text">1. 「廊师质量」（以下简称"本小程序"）是一款为教育机构提供教学监督、听课评课、持续改进管理的专业工具。\n\n2. 您在注册和使用本小程序前，请务必仔细阅读并充分理解本协议各条款。注册和使用本小程序即表示您已充分阅读、理解并同意接受本协议的约束。\n\n3. 本小程序有权根据需要修改本协议，修改后的协议将在小程序内公布。</text>
+      <text class="section-text">1. 「廊坊师范学院教学质量监控系统」（以下简称"本小程序"）是一款为教育机构提供教学监督、听课评课、持续改进管理的专业工具。\n\n2. 您在注册和使用本小程序前，请务必仔细阅读并充分理解本协议各条款。注册和使用本小程序即表示您已充分阅读、理解并同意接受本协议的约束。\n\n3. 本小程序有权根据需要修改本协议，修改后的协议将在小程序内公布。</text>
     </view>
 
     <view class="section">
       <text class="section-title">二、服务内容</text>
-      <text class="section-text">本小程序为用户提供以下服务：\n\n1. 听课评课：督导可以创建听课记录，记录课堂教学情况和评价建议。\n2. 持续改进：基于听课反馈创建改进任务，支持多阶段流转（督导审核-教师改进-高教中心检查）。\n3. 数据统计：提供教学监督相关的数据统计和查看功能。\n4. 角色管理：支持督导、教师、高教中心、管理员四种角色的协同工作。</text>
+      <text class="section-text">本小程序为用户提供以下服务：\n\n1. 听课评课：校领导、学校督导可以创建听课记录，记录课堂教学情况和评价建议；听课意见先提交至高教中心，由高教中心统一审核和反馈。\n2. 持续改进：基于听课反馈创建改进任务，支持多阶段流转（一级发起-二级处理-高教中心复查-学校督导复核）。\n3. 数据统计：提供教学监督相关的数据统计和查看功能。\n4. 角色管理：支持校领导、学校督导、教师、高教中心、管理员等角色的协同工作。</text>
     </view>
 
     <view class="section">

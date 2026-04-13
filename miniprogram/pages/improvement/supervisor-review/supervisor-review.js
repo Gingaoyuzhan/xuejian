@@ -24,7 +24,7 @@ Page({
     if (!this.checkLogin()) return;
 
     wx.setNavigationBarTitle({
-      title: '督导复核'
+      title: '学校督导复核'
     });
 
     const { id } = options;
@@ -49,7 +49,7 @@ Page({
     }
 
     if (!hasRole(app.globalData.userInfo, USER_ROLE.SUPERVISOR)) {
-      showToast('只有督导可以执行复核', 'none');
+      showToast('只有学校督导可以执行复核', 'none');
       wx.navigateBack();
       return false;
     }

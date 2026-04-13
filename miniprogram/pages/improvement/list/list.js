@@ -45,7 +45,7 @@ Page({
       const userInfo = app.globalData.userInfo;
       this.setData({
         userInfo,
-        canCreate: hasAnyRole(userInfo, [USER_ROLE.SUPERVISOR, USER_ROLE.COLLEGE])
+        canCreate: true
       });
       this.initFilterOptions();
       this.loadData();
@@ -84,6 +84,7 @@ Page({
     if (hasAnyRole(userInfo, [USER_ROLE.SUPERVISOR, USER_ROLE.COLLEGE, USER_ROLE.ADMIN])) {
       pushOption('all', '全部事项');
     }
+    pushOption('created', '我发起的');
     if (hasRole(userInfo, USER_ROLE.SUPERVISOR)) {
       pushOption('supervisor_review', '待我复核');
     }
@@ -192,7 +193,7 @@ Page({
       [IMPROVEMENT_STAGE.SUBMITTED]: '一级发起',
       [IMPROVEMENT_STAGE.REVISING]: '二级处理',
       [IMPROVEMENT_STAGE.COLLEGE_CHECK]: '高教中心复查',
-      [IMPROVEMENT_STAGE.SUPERVISOR_REVIEW]: '督导复核',
+      [IMPROVEMENT_STAGE.SUPERVISOR_REVIEW]: '学校督导复核',
       [IMPROVEMENT_STAGE.COMPLETED]: '闭环完成'
     };
     return map[stage] || stage;

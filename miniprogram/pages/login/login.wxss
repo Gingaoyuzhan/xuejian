@@ -71,6 +71,48 @@
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.brand-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 36rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 30rpx;
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(37, 99, 235, 0.04));
+}
+
+.brand-icon {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #DBEAFE, #EFF6FF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+  margin-right: 22rpx;
+}
+
+.brand-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 30rpx;
+  line-height: 1.45;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.brand-sub-title {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  letter-spacing: 3rpx;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(60rpx); }
   to { opacity: 1; transform: translateY(0); }
@@ -199,6 +241,7 @@
 .welcome-back {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .welcome-back text:first-child {
@@ -211,6 +254,23 @@
   font-size: 32rpx;
   font-weight: 700;
   color: #111827;
+}
+
+.profile-auth-btn {
+  min-width: 188rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 24rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid rgba(37, 99, 235, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  color: #1D4ED8;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.profile-auth-btn::after {
+  display: none;
 }
 
 .section-title {
@@ -236,6 +296,35 @@
   font-size: 24rpx;
   line-height: 1.7;
   color: #6B7280;
+}
+
+.selected-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  margin-bottom: 28rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 24rpx;
+  border: 2rpx dashed rgba(148, 163, 184, 0.45);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.selected-summary.active {
+  border-style: solid;
+  border-color: #0F766E;
+  background: linear-gradient(135deg, rgba(240, 253, 250, 0.98), rgba(204, 251, 241, 0.95));
+  box-shadow: 0 0 0 8rpx rgba(15, 118, 110, 0.08);
+}
+
+.selected-label {
+  font-size: 22rpx;
+  color: #64748B;
+}
+
+.selected-value {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #0F172A;
 }
 
 .role-card {
@@ -272,10 +361,17 @@
   transition: color 0.3s ease;
 }
 
+.role-state {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #94A3B8;
+}
+
 .role-card.active {
-  background: rgba(79, 70, 229, 0.1);
-  border-color: #4F46E5;
-  box-shadow: 0 8rpx 24rpx rgba(79, 70, 229, 0.15);
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.98), rgba(224, 242, 254, 0.96));
+  border-color: #0EA5E9;
+  box-shadow: 0 0 0 8rpx rgba(14, 165, 233, 0.12), 0 18rpx 36rpx rgba(14, 165, 233, 0.22);
+  transform: translateY(-6rpx) scale(1.01);
 }
 
 .role-card.active .role-icon-box {
@@ -283,23 +379,53 @@
 }
 
 .role-card.active .role-name {
-  color: #4F46E5;
+  color: #0369A1;
+  font-weight: 700;
+}
+
+.role-card.active .role-state {
+  color: #0F766E;
   font-weight: 700;
 }
 
 .check-circle {
   position: absolute;
-  top: 16rpx;
-  right: 16rpx;
-  width: 16rpx;
-  height: 16rpx;
-  background: #4F46E5;
+  top: 14rpx;
+  right: 14rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: #0EA5E9;
   border-radius: 50%;
-  box-shadow: 0 0 0 6rpx rgba(79, 70, 229, 0.2);
+  box-shadow: 0 0 0 8rpx rgba(14, 165, 233, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.check-circle-text {
+  font-size: 22rpx;
+  line-height: 1;
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .input-group {
   margin-bottom: 50rpx;
+}
+
+.prefill-tip {
+  margin: -8rpx 0 16rpx;
+  padding: 18rpx 22rpx;
+  border-radius: 22rpx;
+  background: rgba(241, 245, 249, 0.9);
+  color: #475569;
+  font-size: 23rpx;
+  line-height: 1.6;
+}
+
+.prefill-tip.matched {
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.96), rgba(209, 250, 229, 0.92));
+  color: #166534;
 }
 
 .input-wrapper {
@@ -314,6 +440,11 @@
   border: 2rpx solid transparent;
   transition: all 0.3s ease;
   animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.input-wrapper.locked {
+  background: rgba(248, 250, 252, 0.98);
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 .input-wrapper:nth-child(1) { animation-delay: 0.4s; }
@@ -410,4 +541,3 @@
   color: #4F46E5;
   font-weight: 500;
 }
-

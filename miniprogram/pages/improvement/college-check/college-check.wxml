@@ -61,6 +61,6 @@
 
   <view class="action-bar">
     <button class="action-btn return-btn" bindtap="handleReturn">退回二级处理</button>
-    <button class="action-btn approve-btn" bindtap="handleApprove">提交督导复核</button>
+    <button class="action-btn approve-btn" bindtap="handleApprove">提交学校督导复核</button>
   </view>
 </view>

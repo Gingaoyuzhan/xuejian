@@ -58,11 +58,11 @@
   </view>
 
   <view class="sheet-card">
-    <view class="sheet-title">审核操作</view>
+    <view class="sheet-title">高教中心审核操作</view>
     <view class="meta-tip">创建时间：{{record.createTimeFormatted || '-'}}</view>
     <textarea
       class="audit-textarea"
-      placeholder="请输入审核意见（驳回时必填）"
+      placeholder="请输入高教中心审核意见（驳回时必填）"
       value="{{auditComment}}"
       bindinput="onCommentInput"
       maxlength="400"

@@ -12,6 +12,7 @@ server {
 server {
     listen 443 ssl;
     server_name jxjd.gaoyuzhan.top;
+    client_max_body_size 20m;
 
     # SSL 证书（certbot 自动生成的路径）
     ssl_certificate /etc/letsencrypt/live/jxjd.gaoyuzhan.top/fullchain.pem;
@@ -24,6 +25,7 @@ server {
 
     # API 反向代理
     location /api/ {
+        client_max_body_size 20m;
         proxy_pass http://localhost:3001/api/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;

@@ -5,7 +5,6 @@
 
 import { createImprovement } from '../../../utils/request.js';
 import { showToast, showConfirm } from '../../../utils/util.js';
-import { USER_ROLE, hasAnyRole, pickRole } from '../../../utils/constants.js';
 
 const app = getApp();
 
@@ -53,12 +52,6 @@ Page({
   checkLogin() {
     if (!app.globalData.isLoggedIn) {
       wx.redirectTo({ url: '/pages/login/login' });
-      return false;
-    }
-
-    if (!hasAnyRole(app.globalData.userInfo, [USER_ROLE.SUPERVISOR, USER_ROLE.COLLEGE])) {
-      showToast('只有督导或高教中心可以发起持续改进', 'none');
-      wx.navigateBack();
       return false;
     }
 
@@ -132,7 +125,7 @@ Page({
         inspectionDate: formData.inspectionDate,
         inspectionIssues: formData.inspectionIssues,
         images: formData.issueImages,
-        operatorRole: pickRole(app.globalData.userInfo, [USER_ROLE.COLLEGE, USER_ROLE.SUPERVISOR])
+        operatorRole: app.globalData.userInfo?.role || ''
       });
 
       showToast('创建成功', 'success');

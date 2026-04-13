@@ -5,7 +5,7 @@
 
 import { getObservationDetail, createObservation, updateObservation } from '../../../utils/request.js';
 import { showToast, showConfirm } from '../../../utils/util.js';
-import { USER_ROLE, hasRole } from '../../../utils/constants.js';
+import { hasObservationCreatorRole } from '../../../utils/constants.js';
 
 const app = getApp();
 
@@ -44,7 +44,8 @@ function getDateDisplay(dateString) {
       year: '20__',
       month: '__',
       day: '__',
-      weekday: '星期_'
+      weekday: '星期_',
+      text: '请选择听课日期'
     };
   }
 
@@ -53,7 +54,8 @@ function getDateDisplay(dateString) {
     year,
     month,
     day,
-    weekday: getWeekdayLabel(dateString)
+    weekday: getWeekdayLabel(dateString),
+    text: `${year}年${month}月${day}日`
   };
 }
 
@@ -94,9 +96,9 @@ Page({
    * 生命周期
    */
   onLoad(options) {
-    if (!this.checkLogin()) return;
-
     const { id } = options;
+    if (!this.checkLogin(id)) return;
+
     wx.setNavigationBarTitle({
       title: id ? '修改听课记录' : '创建听课记录'
     });
@@ -110,7 +112,7 @@ Page({
   /**
    * 检查登录状态
    */
-  checkLogin() {
+  checkLogin(recordId = '') {
     if (!app.globalData.isLoggedIn) {
       wx.redirectTo({
         url: '/pages/login/login'
@@ -118,8 +120,8 @@ Page({
       return false;
     }
 
-    if (!hasRole(app.globalData.userInfo, USER_ROLE.SUPERVISOR)) {
-      showToast('只有督导可以创建听课记录', 'none');
+    if (!hasObservationCreatorRole(app.globalData.userInfo)) {
+      showToast('只有校领导或学校督导可以填写听课记录', 'none');
       wx.navigateBack();
       return false;
     }

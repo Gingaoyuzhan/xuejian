@@ -14,11 +14,11 @@ export const USER_ROLE = {
 
 // 用户角色显示名称
 export const USER_ROLE_NAME = {
-  [USER_ROLE.SUPERVISOR]: '督导',
+  [USER_ROLE.SUPERVISOR]: '学校督导',
   [USER_ROLE.TEACHER]: '教师',
   [USER_ROLE.ADMIN]: '管理员',
   [USER_ROLE.COLLEGE]: '高教中心',
-  [USER_ROLE.DEPARTMENT_LEADER]: '二级学院领导'
+  [USER_ROLE.DEPARTMENT_LEADER]: '校领导'
 };
 
 export const USER_ROLE_VALUES = Object.values(USER_ROLE);
@@ -29,6 +29,16 @@ export const USER_ROLE_PRIORITY = [
   USER_ROLE.SUPERVISOR,
   USER_ROLE.DEPARTMENT_LEADER,
   USER_ROLE.TEACHER
+];
+
+export const OBSERVATION_CREATOR_ROLES = [
+  USER_ROLE.SUPERVISOR,
+  USER_ROLE.DEPARTMENT_LEADER
+];
+
+export const OBSERVATION_MANAGER_ROLES = [
+  USER_ROLE.COLLEGE,
+  USER_ROLE.ADMIN
 ];
 
 export function normalizeRoles(source) {
@@ -58,6 +68,18 @@ export function hasRole(source, role) {
 export function hasAnyRole(source, roles = []) {
   const ownedRoles = normalizeRoles(source);
   return roles.some(role => ownedRoles.includes(role));
+}
+
+export function hasObservationCreatorRole(source) {
+  return hasAnyRole(source, OBSERVATION_CREATOR_ROLES);
+}
+
+export function hasObservationManagerRole(source) {
+  return hasAnyRole(source, OBSERVATION_MANAGER_ROLES);
+}
+
+export function canAccessObservationModule(source) {
+  return hasObservationCreatorRole(source) || hasObservationManagerRole(source);
 }
 
 export function getPrimaryRole(source) {
@@ -105,7 +127,7 @@ export const IMPROVEMENT_STAGE_TEXT = {
   [IMPROVEMENT_STAGE.SUBMITTED]: '一级发起',
   [IMPROVEMENT_STAGE.REVISING]: '二级处理',
   [IMPROVEMENT_STAGE.COLLEGE_CHECK]: '高教中心复查',
-  [IMPROVEMENT_STAGE.SUPERVISOR_REVIEW]: '督导复核',
+  [IMPROVEMENT_STAGE.SUPERVISOR_REVIEW]: '学校督导复核',
   [IMPROVEMENT_STAGE.COMPLETED]: '闭环完成'
 };
 

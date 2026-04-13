@@ -225,3 +225,9 @@
   color: #0f172a;
   border: 2rpx solid rgba(148, 163, 184, 0.3);
 }
+
+.action-btn.danger {
+  background: #ffffff;
+  color: #dc2626;
+  border: 2rpx solid rgba(220, 38, 38, 0.3);
+}

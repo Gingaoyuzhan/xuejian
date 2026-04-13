@@ -5,14 +5,20 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { query, insert } = require('../db');
 const { normalizeRoles, getPrimaryRole, VALID_ROLES, hasAnyRole } = require('../utils');
+const { listUsersByRole } = require('../user-role-store');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'jiaoxuejiandu_secret_key_2026';
+const JWT_SECRET = String(process.env.JWT_SECRET || '').trim();
 const STORAGE_ROLE_PRIORITY = ['teacher', 'department_leader', 'supervisor', 'college', 'admin'];
 const SELF_SERVICE_ROLES = ['teacher'];
-const OPTIONAL_SELF_SERVICE_ROLES = ['admin'];
+const OPTIONAL_SELF_SERVICE_ROLES = [];
 const TEACHER_DIRECTORY_ROLES = ['supervisor', 'college', 'department_leader', 'admin'];
+
+if (!JWT_SECRET) {
+    throw new Error('缺少必填环境变量 JWT_SECRET');
+}
 
 let userRolesTablePromise = null;
 
@@ -25,11 +31,16 @@ function unauthorized(res) {
 }
 
 function getAdminCode() {
-    return process.env.ADMIN_CODE || 'admin888';
+    return String(process.env.ADMIN_CODE || '').trim();
+}
+
+function isAdminCodeConfigured() {
+    return Boolean(getAdminCode());
 }
 
 function isAdminCodeValid(password) {
-    return String(password || '').trim() === getAdminCode();
+    const adminCode = getAdminCode();
+    return Boolean(adminCode) && String(password || '').trim() === adminCode;
 }
 
 function getWechatConfig() {
@@ -39,9 +50,35 @@ function getWechatConfig() {
     };
 }
 
-async function exchangeCodeForSession(code) {
+function isLocalDevRequest(req) {
+    const host = String(req.get('x-forwarded-host') || req.get('host') || req.hostname || '').toLowerCase();
+    const hostname = String(req.hostname || '').toLowerCase();
+    const nodeEnv = String(process.env.NODE_ENV || '').toLowerCase();
+    const isLocalHost = host.includes('127.0.0.1')
+        || host.includes('localhost')
+        || hostname === '127.0.0.1'
+        || hostname === 'localhost';
+
+    return isLocalHost && nodeEnv !== 'production';
+}
+
+function buildLocalDevSession(phone) {
+    const normalizedPhone = String(phone || '').trim();
+    const seed = `${normalizedPhone || 'local_dev_user'}|${JWT_SECRET}`;
+    const hash = crypto.createHash('sha256').update(seed).digest('hex');
+
+    return {
+        openid: `dev_${hash.slice(0, 28)}`,
+        unionid: ''
+    };
+}
+
+async function exchangeCodeForSession(req, code, phone) {
     const { appid, secret } = getWechatConfig();
     if (!appid || !secret) {
+        if (isLocalDevRequest(req)) {
+            return buildLocalDevSession(phone);
+        }
         throw new Error('服务器未配置微信登录参数，请先配置 WECHAT_APPID 和 WECHAT_APPSECRET');
     }
 
@@ -169,6 +206,117 @@ function getRequestedRoles(role, roles) {
     return requestedRoles;
 }
 
+function getPrivilegedRoles(roles = []) {
+    return normalizeRoles(roles).filter(item => !SELF_SERVICE_ROLES.includes(item) && !OPTIONAL_SELF_SERVICE_ROLES.includes(item));
+}
+
+function isValidPhone(phone) {
+    return /^1[3-9]\d{9}$/.test(String(phone || '').trim());
+}
+
+async function findPreopenedUserByPhone(phone, roles = []) {
+    const normalizedPhone = String(phone || '').trim();
+    const requestedRoles = normalizeRoles(roles);
+
+    if (!normalizedPhone) {
+        return null;
+    }
+
+    const rows = await query(
+        'SELECT * FROM users WHERE phone = ? ORDER BY FIELD(role, ?, ?, ?, ?, ?) ASC, id ASC',
+        [normalizedPhone, 'admin', 'college', 'supervisor', 'department_leader', 'teacher']
+    );
+
+    for (const row of rows) {
+        const grantedRoles = await loadGrantedRoles(row.id, row.role);
+        if (requestedRoles.length === 0 || requestedRoles.some(item => grantedRoles.includes(item))) {
+            return {
+                ...row,
+                roles: grantedRoles
+            };
+        }
+    }
+
+    return null;
+}
+
+function canCoverRequestedRoles(grantedRoles = [], requestedRoles = []) {
+    if (requestedRoles.length === 0) {
+        return true;
+    }
+
+    return requestedRoles.every(role => grantedRoles.includes(role));
+}
+
+async function findUsersByOpenid(openid) {
+    if (!openid) {
+        return [];
+    }
+
+    const rows = await query(
+        'SELECT * FROM users WHERE openid = ? ORDER BY FIELD(role, ?, ?, ?, ?, ?) ASC, id ASC',
+        [openid, 'admin', 'college', 'supervisor', 'department_leader', 'teacher']
+    );
+
+    const users = [];
+    for (const row of rows) {
+        users.push({
+            ...row,
+            roles: await loadGrantedRoles(row.id, row.role)
+        });
+    }
+
+    return users;
+}
+
+/**
+ * GET /api/auth/prefill
+ * 根据管理员预开通的身份自动填充姓名和单位
+ */
+router.get('/prefill', async (req, res) => {
+    try {
+        const { phone, role, roles } = req.query;
+        const requestedRoles = getRequestedRoles(role, roles);
+        const privilegedRoles = getPrivilegedRoles(requestedRoles);
+
+        if (!isValidPhone(phone)) {
+            return res.json({ code: 400, message: '手机号格式不正确', data: null });
+        }
+
+        if (privilegedRoles.length === 0) {
+            return res.json({
+                code: 0,
+                message: '获取成功',
+                data: { exists: false, locked: false, name: '', department: '', roles: [] }
+            });
+        }
+
+        const existingUser = await findPreopenedUserByPhone(phone, privilegedRoles);
+        if (!existingUser) {
+            return res.json({
+                code: 0,
+                message: '获取成功',
+                data: { exists: false, locked: false, name: '', department: '', roles: [] }
+            });
+        }
+
+        res.json({
+            code: 0,
+            message: '获取成功',
+            data: {
+                exists: true,
+                locked: true,
+                name: existingUser.name || '',
+                department: existingUser.department || '',
+                roles: existingUser.roles || []
+            }
+        });
+    } catch (err) {
+        console.error('获取登录预填充失败:', err);
+        res.json({ code: -1, message: '获取失败，请重试', data: null });
+    }
+});
+
 /**
  * POST /api/auth/login
  * 用户登录/注册
@@ -178,8 +326,9 @@ router.post('/login', async (req, res) => {
     try {
         const { code, userInfo, role, roles, phone, name, department, password } = req.body;
         const requestedRoles = getRequestedRoles(role, roles);
+        const privilegedRoles = getPrivilegedRoles(requestedRoles);
 
-        if (!code) {
+        if (!code && !isLocalDevRequest(req)) {
             return res.json({ code: 400, message: '缺少微信登录凭证，请重新登录', data: null });
         }
         if (!phone || !name || !department) {
@@ -189,82 +338,138 @@ router.post('/login', async (req, res) => {
             return res.json({ code: 400, message: '请至少选择一个身份', data: null });
         }
 
-        const { openid, unionid } = await exchangeCodeForSession(code);
+        const { openid, unionid } = await exchangeCodeForSession(req, code, phone);
         const roleStoreAvailable = await hasUserRolesTable();
-        const existingUsers = await query('SELECT * FROM users WHERE openid = ? LIMIT 1', [openid]);
+        const existingUsers = await findUsersByOpenid(openid);
         let userData;
 
-        if (existingUsers.length > 0) {
-            const existingUser = existingUsers[0];
-            const grantedRoles = await loadGrantedRoles(existingUser.id, existingUser.role);
-            const unauthorizedRoles = requestedRoles.filter(item => !grantedRoles.includes(item));
+        if (requestedRoles.length > 1 && !roleStoreAvailable) {
+            return res.json({
+                code: 400,
+                message: '当前系统暂未启用多身份登录，请先只选择一个身份登录',
+                data: null
+            });
+        }
 
-            if (unauthorizedRoles.length > 0) {
-                return res.json({ code: 403, message: '所选身份未开通，请联系管理员配置', data: null });
-            }
+        const matchedExistingUser = existingUsers.find(item => canCoverRequestedRoles(item.roles, requestedRoles));
 
-            const effectiveRoles = requestedRoles.length > 0 ? requestedRoles : grantedRoles;
+        if (matchedExistingUser) {
+            const effectiveRoles = requestedRoles.length > 0 ? requestedRoles : matchedExistingUser.roles;
 
-            if (effectiveRoles.includes('admin') && !isAdminCodeValid(password)) {
-                return res.json({ code: 401, message: '管理员授权码不正确', data: null });
+            if (effectiveRoles.includes('admin')) {
+                if (!isAdminCodeConfigured()) {
+                    return res.json({ code: 500, message: '服务器未配置管理员授权码，请联系管理员处理', data: null });
+                }
+                if (!isAdminCodeValid(password)) {
+                    return res.json({ code: 401, message: '管理员授权码不正确', data: null });
+                }
             }
 
             await query(
                 'UPDATE users SET unionid = ?, phone = ?, name = ?, department = ?, avatar = ? WHERE id = ?',
                 [
-                    unionid || existingUser.unionid || null,
+                    unionid || matchedExistingUser.unionid || null,
                     phone,
                     name,
                     department,
-                    userInfo?.avatarUrl || existingUser.avatar,
-                    existingUser.id
+                    userInfo?.avatarUrl || matchedExistingUser.avatar,
+                    matchedExistingUser.id
                 ]
             );
 
             userData = buildUserPayload({
-                ...existingUser,
-                unionid: unionid || existingUser.unionid || null,
+                ...matchedExistingUser,
+                unionid: unionid || matchedExistingUser.unionid || null,
                 phone,
                 name,
                 department,
-                avatar: userInfo?.avatarUrl || existingUser.avatar
+                avatar: userInfo?.avatarUrl || matchedExistingUser.avatar
             }, effectiveRoles);
         } else {
-            const privilegedRoles = requestedRoles.filter(item => !SELF_SERVICE_ROLES.includes(item) && !OPTIONAL_SELF_SERVICE_ROLES.includes(item));
-            if (privilegedRoles.length > 0) {
-                return res.json({ code: 403, message: '督导、高教中心和二级学院领导身份需由管理员预先开通', data: null });
+            const preopenedUser = privilegedRoles.length > 0
+                ? await findPreopenedUserByPhone(phone, privilegedRoles)
+                : null;
+
+            if (preopenedUser) {
+                const matchedExistingIds = new Set(existingUsers.map(item => Number(item.id)));
+                if (preopenedUser.openid && preopenedUser.openid !== openid && !matchedExistingIds.has(Number(preopenedUser.id))) {
+                    return res.json({ code: 409, message: '该手机号已绑定其他微信账号，请联系管理员处理', data: null });
+                }
+
+                const grantedRoles = preopenedUser.roles || await loadGrantedRoles(preopenedUser.id, preopenedUser.role);
+                const unauthorizedRoles = requestedRoles.filter(item => !grantedRoles.includes(item));
+                if (unauthorizedRoles.length > 0) {
+                    return res.json({ code: 403, message: '所选身份未开通，请联系管理员配置', data: null });
+                }
+
+                const effectiveRoles = requestedRoles.length > 0 ? requestedRoles : grantedRoles;
+                if (effectiveRoles.includes('admin')) {
+                    if (!isAdminCodeConfigured()) {
+                        return res.json({ code: 500, message: '服务器未配置管理员授权码，请联系管理员处理', data: null });
+                    }
+                    if (!isAdminCodeValid(password)) {
+                        return res.json({ code: 401, message: '管理员授权码不正确', data: null });
+                    }
+                }
+
+                const finalName = preopenedUser.name || name;
+                const finalDepartment = preopenedUser.department || department;
+
+                await query(
+                    'UPDATE users SET openid = ?, unionid = ?, phone = ?, name = ?, department = ?, avatar = ? WHERE id = ?',
+                    [
+                        openid,
+                        unionid || preopenedUser.unionid || null,
+                        phone,
+                        finalName,
+                        finalDepartment,
+                        userInfo?.avatarUrl || preopenedUser.avatar,
+                        preopenedUser.id
+                    ]
+                );
+
+                userData = buildUserPayload({
+                    ...preopenedUser,
+                    openid,
+                    unionid: unionid || preopenedUser.unionid || null,
+                    phone,
+                    name: finalName,
+                    department: finalDepartment,
+                    avatar: userInfo?.avatarUrl || preopenedUser.avatar
+                }, effectiveRoles);
+            } else if (existingUsers.length > 0) {
+                return res.json({ code: 403, message: '所选身份未开通，请联系管理员配置', data: null });
+            } else if (privilegedRoles.length > 0) {
+                return res.json({ code: 403, message: '学校督导、高教中心和校领导身份需由管理员预先开通', data: null });
             }
+            if (!userData) {
+                const effectiveRoles = requestedRoles.includes('admin')
+                    ? normalizeRoles(requestedRoles.filter(item => item === 'teacher' || item === 'admin'))
+                    : ['teacher'];
 
-            if (requestedRoles.includes('admin') && !isAdminCodeValid(password)) {
-                return res.json({ code: 401, message: '管理员授权码不正确', data: null });
+                if (effectiveRoles.length > 1 && !roleStoreAvailable) {
+                    return res.json({ code: 500, message: '数据库尚未启用多身份存储，请先执行最新 init.sql', data: null });
+                }
+
+                const storageRole = getStorageRole(effectiveRoles);
+                const insertId = await insert(
+                    'INSERT INTO users (openid, unionid, role, phone, name, department, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    [openid, unionid || null, storageRole, phone, name, department, userInfo?.avatarUrl || '']
+                );
+
+                if (roleStoreAvailable) {
+                    await replaceGrantedRoles(insertId, effectiveRoles);
+                }
+
+                userData = buildUserPayload({
+                    id: insertId,
+                    role: storageRole,
+                    phone,
+                    name,
+                    department,
+                    avatar: userInfo?.avatarUrl || ''
+                }, effectiveRoles);
             }
-
-            const effectiveRoles = requestedRoles.includes('admin')
-                ? normalizeRoles(requestedRoles.filter(item => item === 'teacher' || item === 'admin'))
-                : ['teacher'];
-
-            if (effectiveRoles.length > 1 && !roleStoreAvailable) {
-                return res.json({ code: 500, message: '数据库尚未启用多身份存储，请先执行最新 init.sql', data: null });
-            }
-
-            const storageRole = getStorageRole(effectiveRoles);
-            const insertId = await insert(
-                'INSERT INTO users (openid, unionid, role, phone, name, department, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [openid, unionid || null, storageRole, phone, name, department, userInfo?.avatarUrl || '']
-            );
-
-            if (roleStoreAvailable) {
-                await replaceGrantedRoles(insertId, effectiveRoles);
-            }
-
-            userData = buildUserPayload({
-                id: insertId,
-                role: storageRole,
-                phone,
-                name,
-                department,
-                avatar: userInfo?.avatarUrl || ''
-            }, effectiveRoles);
         }
 
         const token = jwt.sign(
@@ -342,16 +547,7 @@ router.get('/teachers', async (req, res) => {
         }
 
         const { department } = req.query;
-        let sql = 'SELECT id, name, department FROM users WHERE role = ?';
-        const params = ['teacher'];
-
-        if (department) {
-            sql += ' AND department = ?';
-            params.push(department);
-        }
-
-        sql += ' ORDER BY name ASC';
-        const teachers = await query(sql, params);
+        const teachers = await listUsersByRole('teacher', department);
 
         res.json({
             code: 0,

@@ -49,7 +49,7 @@ Page({
     }
 
     if (!hasAnyRole(app.globalData.userInfo, [USER_ROLE.TEACHER, USER_ROLE.DEPARTMENT_LEADER])) {
-      showToast('只有教师或二级学院领导可以填写改进情况', 'none');
+      showToast('只有教师或校领导可以填写改进情况', 'none');
       wx.navigateBack();
       return false;
     }

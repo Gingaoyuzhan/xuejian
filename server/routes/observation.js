@@ -6,8 +6,11 @@ const express = require('express');
 const router = express.Router();
 const { query, insert } = require('../db');
 const { toCamelCase, parseJsonFields, normalizeRoles, hasRole, hasAnyRole, getPrimaryRole } = require('../utils');
+const { getUserByIdWithRoles, findUserByNameWithRole, getUserIdsByDepartmentRole } = require('../user-role-store');
 
 const FORM_DATA_COLUMN = 'form_data';
+const OBSERVATION_CREATOR_ROLES = ['supervisor', 'department_leader'];
+const OBSERVATION_MANAGER_ROLES = ['college', 'admin'];
 let formDataColumnPromise = null;
 
 function getActor(req) {
@@ -26,6 +29,14 @@ function getActor(req) {
 
 function unauthorized(res) {
     return res.json({ code: 401, message: '登录已失效，请重新登录', data: null });
+}
+
+function hasObservationCreatorRole(source) {
+    return hasAnyRole(source, OBSERVATION_CREATOR_ROLES);
+}
+
+function hasObservationManagerRole(source) {
+    return hasAnyRole(source, OBSERVATION_MANAGER_ROLES);
 }
 
 function normalizeText(value) {
@@ -257,8 +268,7 @@ function buildObservationUpdatePayload(teacherInfo, formData, recordId, includeF
 }
 
 async function getUserById(userId) {
-    const rows = await query('SELECT id, name, role, department FROM users WHERE id = ?', [userId]);
-    return rows[0] || null;
+    return getUserByIdWithRoles(userId);
 }
 
 async function findTeacherByName(name) {
@@ -267,11 +277,7 @@ async function findTeacherByName(name) {
         return null;
     }
 
-    const rows = await query(
-        'SELECT id, name, role, department FROM users WHERE role = ? AND name = ? LIMIT 1',
-        ['teacher', normalizedName]
-    );
-    return rows[0] || null;
+    return findUserByNameWithRole(normalizedName, 'teacher');
 }
 
 async function resolveTeacher(teacherId, teacherName) {
@@ -280,7 +286,7 @@ async function resolveTeacher(teacherId, teacherName) {
 
     if (finalTeacherId) {
         const teacher = await getUserById(finalTeacherId);
-        if (!teacher || teacher.role !== 'teacher') {
+        if (!teacher || !hasRole(teacher, 'teacher')) {
             throw new Error('授课教师不存在');
         }
         finalTeacherId = teacher.id;
@@ -307,16 +313,16 @@ router.post('/create', async (req, res) => {
             return unauthorized(res);
         }
 
+        if (!hasObservationCreatorRole(actor)) {
+            return res.json({ code: 403, message: '只有校领导或学校督导可以提交听课记录', data: null });
+        }
+
         const {
             supervisorId,
             supervisorName
         } = req.body;
         const formData = buildObservationFormData(req.body);
         const validationError = validateObservationForm(formData);
-
-        if (!hasRole(actor, 'supervisor')) {
-            return res.json({ code: 403, message: '只有听课老师可以填写听课记录表', data: null });
-        }
 
         if (Number(supervisorId) !== Number(actor.id)) {
             return res.json({ code: 403, message: '只能以本人身份提交听课记录', data: null });
@@ -327,7 +333,7 @@ router.post('/create', async (req, res) => {
         }
 
         const supervisor = await getUserById(actor.id);
-        if (!supervisor) {
+        if (!supervisor || !hasObservationCreatorRole(supervisor)) {
             return res.json({ code: 403, message: '当前账号无权填写听课记录', data: null });
         }
 
@@ -391,37 +397,31 @@ router.get('/list', async (req, res) => {
 
         switch (filter) {
             case 'my':
-                if (!hasRole(actor, 'supervisor')) {
-                    return res.json({ code: 403, message: '只有听课老师可以查看我填写的记录', data: null });
+                if (!hasObservationCreatorRole(actor) && !hasObservationManagerRole(actor)) {
+                    return res.json({ code: 403, message: '只有校领导、学校督导、高教中心或管理员可以查看我提交的记录', data: null });
                 }
                 whereClauses.push('supervisor_id = ?');
                 params.push(userId);
                 break;
             case 'about':
-                if (!hasRole(actor, 'teacher')) {
-                    return res.json({ code: 403, message: '只有被听课教师可以查看关于我的记录', data: null });
-                }
-                whereClauses.push('teacher_id = ?');
-                params.push(userId);
-                break;
+                return res.json({ code: 403, message: '听课意见由高教中心统一反馈，教师暂不直接查看原始听课记录', data: null });
             case 'pending':
-                if (!hasAnyRole(actor, ['college', 'supervisor', 'admin'])) {
-                    return res.json({ code: 403, message: '只有高教中心、督导或管理员可以查看待审核记录', data: null });
+                if (!hasObservationManagerRole(actor)) {
+                    return res.json({ code: 403, message: '只有高教中心或管理员可以查看待审核记录', data: null });
                 }
                 whereClauses.push("status = 'pending'");
                 break;
             case 'audit':
-                if (!hasAnyRole(actor, ['college', 'supervisor', 'admin'])) {
-                    return res.json({ code: 403, message: '只有高教中心、督导或管理员可以查看已审核记录', data: null });
+                if (!hasObservationManagerRole(actor)) {
+                    return res.json({ code: 403, message: '只有高教中心或管理员可以查看已审核记录', data: null });
                 }
                 whereClauses.push("status IN ('approved','rejected')");
                 break;
             case 'college':
                 if (hasRole(actor, 'college')) {
-                    const userRows = await query('SELECT department FROM users WHERE id = ?', [userId]);
-                    if (userRows.length > 0 && userRows[0].department) {
-                        const teacherRows = await query('SELECT id FROM users WHERE role = ? AND department = ?', ['teacher', userRows[0].department]);
-                        const teacherIds = teacherRows.map(t => t.id);
+                    const currentUser = await getUserById(userId);
+                    if (currentUser?.department) {
+                        const teacherIds = await getUserIdsByDepartmentRole(currentUser.department, 'teacher');
                         if (teacherIds.length === 0) {
                             return res.json({ code: 0, message: '获取成功', data: { list: [], total: 0, limit: queryLimit, skip: querySkip } });
                         }
@@ -435,21 +435,18 @@ router.get('/list', async (req, res) => {
                 }
                 break;
             case 'all':
-                if (hasAnyRole(actor, ['college', 'supervisor', 'admin'])) {
+                if (hasObservationManagerRole(actor)) {
                     whereClauses.push("status IN ('pending','approved','rejected')");
-                } else if (hasRole(actor, 'teacher')) {
-                    whereClauses.push('teacher_id = ?');
-                    params.push(userId);
                 } else {
-                    return res.json({ code: 403, message: '无权限查看听课记录', data: null });
+                    return res.json({ code: 403, message: '只有高教中心或管理员可以查看全部听课记录', data: null });
                 }
                 break;
             case 'mine_all':
-                if (hasRole(actor, 'supervisor')) {
+                if (hasObservationCreatorRole(actor)) {
                     whereClauses.push('supervisor_id = ?');
                     params.push(userId);
                 } else {
-                    return res.json({ code: 403, message: '只有督导可以查看我创建的全部记录', data: null });
+                    return res.json({ code: 403, message: '只有校领导或学校督导可以查看我创建的全部记录', data: null });
                 }
                 break;
             default:
@@ -498,11 +495,10 @@ router.get('/detail/:id', async (req, res) => {
 
         const record = rows[0];
         const canView = Number(record.supervisor_id) === Number(actor.id)
-            || Number(record.teacher_id) === Number(actor.id)
-            || hasAnyRole(actor, ['college', 'supervisor', 'admin']);
+            || hasObservationManagerRole(actor);
 
         if (!canView) {
-            return res.json({ code: 403, message: '该听课记录仅听课老师、被听课老师和高教中心可见', data: null });
+            return res.json({ code: 403, message: '该听课记录仅听课人、高教中心和管理员可见', data: null });
         }
 
         attachObservationFormData(record);
@@ -533,11 +529,13 @@ router.put('/update/:id', async (req, res) => {
         }
 
         const record = rows[0];
-        if (Number(record.supervisor_id) !== Number(actor.id) || !hasRole(actor, 'supervisor')) {
-            return res.json({ code: 403, message: '只有创建者可以修改', data: null });
+        const isOwner = Number(record.supervisor_id) === Number(actor.id);
+        const isAdmin = hasAnyRole(actor, ['admin']);
+        if (!isOwner && !isAdmin) {
+            return res.json({ code: 403, message: '只有创建者或管理员可以修改', data: null });
         }
-        if (record.status !== 'rejected') {
-            return res.json({ code: -1, message: '只有驳回状态的记录可以修改', data: null });
+        if (record.status === 'approved') {
+            return res.json({ code: -1, message: '已通过审核的记录不能修改，如需修改请联系管理员', data: null });
         }
 
         attachObservationFormData(record);
@@ -575,6 +573,52 @@ router.put('/update/:id', async (req, res) => {
     }
 });
 
+async function handleDeleteObservation(req, res) {
+    try {
+        const actor = getActor(req);
+        if (!actor) {
+            return unauthorized(res);
+        }
+
+        const recordId = req.params.id;
+        const rows = await query('SELECT * FROM observations WHERE id = ?', [recordId]);
+        if (rows.length === 0) {
+            return res.json({ code: 404, message: '记录不存在', data: null });
+        }
+
+        const record = rows[0];
+        const isOwner = Number(record.supervisor_id) === Number(actor.id);
+        const isAdmin = hasAnyRole(actor, ['admin']);
+
+        if (!isOwner && !isAdmin) {
+            return res.json({ code: 403, message: '只有创建者或管理员可以删除', data: null });
+        }
+
+        if (record.status === 'approved' && !isAdmin) {
+            return res.json({ code: -1, message: '已通过审核的记录不能删除，请联系管理员', data: null });
+        }
+
+        await query('DELETE FROM observations WHERE id = ?', [recordId]);
+
+        res.json({ code: 0, message: '删除成功', data: null });
+    } catch (err) {
+        console.error('删除听课记录失败:', err);
+        res.json({ code: -1, message: '删除失败，请重试', data: null });
+    }
+}
+
+/**
+ * DELETE /api/observation/delete/:id
+ * 删除听课记录（创建者或管理员可删除）
+ */
+router.delete('/delete/:id', handleDeleteObservation);
+
+/**
+ * POST /api/observation/delete/:id
+ * 删除听课记录兼容入口，避免代理层或旧环境对 DELETE 支持不一致
+ */
+router.post('/delete/:id', handleDeleteObservation);
+
 /**
  * POST /api/observation/audit
  */
@@ -591,7 +635,7 @@ router.post('/audit', async (req, res) => {
             return res.json({ code: 400, message: '参数不完整', data: null });
         }
 
-        if (!hasAnyRole(actor, ['college', 'admin']) || Number(reviewerId) !== Number(actor.id)) {
+        if (!hasObservationManagerRole(actor) || Number(reviewerId) !== Number(actor.id)) {
             return res.json({ code: 403, message: '只有高教中心或管理员可以审核听课记录', data: null });
         }
 
@@ -632,15 +676,12 @@ router.get('/stats', async (req, res) => {
         let pendingObservations = 0;
         let pendingImprovements = 0;
 
-        if (hasRole(actor, 'supervisor')) {
+        if (hasObservationCreatorRole(actor)) {
             const r1 = await query('SELECT COUNT(*) as c FROM observations WHERE supervisor_id = ?', [userId]);
-            myObservations = r1[0].c;
-        } else if (hasRole(actor, 'teacher')) {
-            const r1 = await query('SELECT COUNT(*) as c FROM observations WHERE teacher_id = ?', [userId]);
             myObservations = r1[0].c;
         }
 
-        if (hasAnyRole(actor, ['college', 'admin'])) {
+        if (hasObservationManagerRole(actor)) {
             const r2 = await query("SELECT COUNT(*) as c FROM observations WHERE status = 'pending'");
             pendingObservations = r2[0].c;
         }

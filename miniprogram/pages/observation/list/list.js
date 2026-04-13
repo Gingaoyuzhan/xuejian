@@ -5,7 +5,10 @@
 
 import { getObservationList } from '../../../utils/request.js';
 import { formatDate } from '../../../utils/util.js';
-import { USER_ROLE, hasRole, hasAnyRole } from '../../../utils/constants.js';
+import {
+  hasObservationCreatorRole,
+  hasObservationManagerRole
+} from '../../../utils/constants.js';
 
 const app = getApp();
 
@@ -25,12 +28,7 @@ Page({
     // 筛选条件
     filter: 'all',
     filterIndex: 0,
-    filterOptions: [
-      { value: 'all', label: '全部' },
-      { value: 'my', label: '我创建的' },
-      { value: 'about', label: '关于我的' },
-      { value: 'pending', label: '待审核' }
-    ],
+    filterOptions: [],
     // 加载状态
     loading: false,
     refreshing: false,
@@ -56,7 +54,7 @@ Page({
       const userInfo = app.globalData.userInfo;
       this.setData({
         userInfo,
-        canCreate: hasRole(userInfo, USER_ROLE.SUPERVISOR)
+        canCreate: hasObservationCreatorRole(userInfo)
       });
       this.initFilterOptions();
       this.loadData();
@@ -101,22 +99,19 @@ Page({
       }
     };
 
-    if (hasAnyRole(userInfo, [USER_ROLE.SUPERVISOR, USER_ROLE.COLLEGE, USER_ROLE.ADMIN])) {
+    if (hasObservationManagerRole(userInfo)) {
       pushOption('all', '全部记录');
     }
-    if (hasRole(userInfo, USER_ROLE.SUPERVISOR)) {
-      pushOption('my', '我填写的');
+    if (hasObservationCreatorRole(userInfo)) {
+      pushOption('my', '我提交的');
     }
-    if (hasRole(userInfo, USER_ROLE.TEACHER)) {
-      pushOption('about', '关于我的');
-    }
-    if (hasAnyRole(userInfo, [USER_ROLE.COLLEGE, USER_ROLE.ADMIN])) {
+    if (hasObservationManagerRole(userInfo)) {
       pushOption('pending', '待审核');
       pushOption('audit', '已审核');
     }
 
     if (filterOptions.length === 0) {
-      pushOption('about', '关于我的');
+      pushOption('none', '暂无可查看记录');
     }
 
     let { filter } = this.data;
@@ -143,6 +138,15 @@ Page({
 
     try {
       const { filter, limit, skip } = this.data;
+      if (filter === 'none') {
+        this.setData({
+          list: [],
+          total: 0,
+          hasMore: false,
+          loading: false
+        });
+        return;
+      }
       const userInfo = app.globalData.userInfo;
 
       const res = await getObservationList({

@@ -1,17 +1,21 @@
 // app.js
 import { normalizeRoles, getPrimaryRole } from './utils/constants.js';
 
+const PROD_API_BASE_URL = 'https://jxjd.gaoyuzhan.top/api';
+
 App({
   globalData: {
     userInfo: null,
     isLoggedIn: false,
-    userRole: null, // supervisor(督导) / teacher(教师) / admin(管理员) / college(高教中心) / department_leader(二级学院领导)
+    userRole: null, // supervisor(督导) / teacher(教师) / admin(管理员) / college(高教中心) / department_leader(校领导)
     userRoles: [],
-    // 后端 API 基础地址（开发环境使用本地，生产环境替换为服务器地址）
-    apiBaseUrl: 'http://localhost:3000/api'
+    apiBaseUrl: PROD_API_BASE_URL
   },
 
   onLaunch() {
+    wx.removeStorageSync('apiBaseUrl');
+    wx.removeStorageSync('apiBaseUrlMode');
+    this.globalData.apiBaseUrl = PROD_API_BASE_URL;
     // 检查登录状态
     this.checkLoginStatus();
   },

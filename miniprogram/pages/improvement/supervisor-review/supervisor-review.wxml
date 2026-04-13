@@ -37,12 +37,12 @@
   </view>
 
   <view class="form-card">
-    <view class="card-title">督导复核</view>
+    <view class="card-title">学校督导复核</view>
     <view class="form-item">
       <view class="form-label required">复核情况</view>
       <textarea
         class="form-textarea"
-        placeholder="请填写督导复核意见或退回要求"
+        placeholder="请填写学校督导复核意见或退回要求"
         value="{{formData.reviewStatus}}"
         bindinput="onStatusInput"
         maxlength="3000"

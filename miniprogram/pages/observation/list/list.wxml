@@ -6,8 +6,8 @@
     <view class="login-prompt">
       <text class="login-prompt-icon">📋</text>
       <text class="login-prompt-title">听课评课</text>
-      <text class="login-prompt-desc">登录后可查看听课记录、创建评课报告</text>
-      <button class="login-prompt-btn" bindtap="goToLogin">登录查看</button>
+      <text class="login-prompt-desc">游客可先浏览听课评课功能说明，需查看或提交记录时再自愿登录</text>
+      <button class="login-prompt-btn" bindtap="goToLogin">按需登录后查看</button>
     </view>
   </block>
 
@@ -72,7 +72,7 @@
       <!-- 空状态 -->
       <view class="empty-state" wx:if="{{!loading && list.length === 0}}">
         <text class="empty-icon">📋</text>
-        <text class="empty-text">暂无听课记录</text>
+        <text class="empty-text">{{filter === 'none' ? '当前身份暂无可查看的听课记录' : '暂无听课记录'}}</text>
       </view>
 
       <!-- 加载中 -->
@@ -86,7 +86,6 @@
       </view>
     </view>
 
-    <!-- 创建按钮（督导可见） -->
     <view class="create-btn" bindtap="handleCreate" wx:if="{{canCreate}}">
       <text class="create-icon">+</text>
     </view>

@@ -66,10 +66,10 @@
   </view>
 
   <view class="sheet-card">
-    <view class="sheet-title">审核信息</view>
+    <view class="sheet-title">流转信息</view>
     <view class="meta-list">
       <view class="meta-item">
-        <text class="meta-label">督导教师</text>
+        <text class="meta-label">听课人</text>
         <text class="meta-value">{{record.supervisorName || '-'}}</text>
       </view>
       <view class="meta-item">
@@ -91,7 +91,14 @@
     </view>
   </view>
 
-  <view class="action-bar">
+  <view class="action-bar" wx:if="{{canEdit || canDelete || canAudit}}">
+    <button
+      class="action-btn danger"
+      wx:if="{{canDelete}}"
+      bindtap="handleDelete"
+    >
+      删除记录
+    </button>
     <button
       class="action-btn secondary"
       wx:if="{{canEdit}}"

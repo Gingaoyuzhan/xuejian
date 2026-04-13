@@ -7,8 +7,48 @@
 import { showLoading, hideLoading, showToast } from './util.js';
 
 // ========== 配置 ==========
-// 后端 API 基础地址（开发环境用本地，生产环境替换为服务器地址）
 const BASE_URL = 'https://jxjd.gaoyuzhan.top/api';
+
+function buildNetworkErrorMessage(baseUrl) {
+  return `网络请求失败：${baseUrl || BASE_URL}`;
+}
+
+function getOriginFromBaseUrl(baseUrl) {
+  const matched = String(baseUrl || BASE_URL).match(/^(https?:\/\/[^/]+)/);
+  return matched ? matched[1] : (baseUrl || BASE_URL);
+}
+
+function buildUploadStatusMessage(statusCode, baseUrl) {
+  if (statusCode === 413) {
+    return '上传失败：图片过大，线上网关已拦截，请压缩后重试';
+  }
+  if (statusCode === 401) {
+    return '登录已失效，请重新登录后再上传';
+  }
+  if (statusCode >= 500) {
+    return '上传失败：服务器暂时不可用，请稍后重试';
+  }
+  return `上传失败：服务返回异常(${statusCode})`;
+}
+
+function buildUploadFailMessage(err, baseUrl) {
+  const errMsg = String(err?.errMsg || '');
+  const uploadOrigin = getOriginFromBaseUrl(baseUrl);
+
+  if (errMsg.includes('url not in domain list')) {
+    return `上传失败：请在小程序后台配置 uploadFile 合法域名 ${uploadOrigin}`;
+  }
+
+  if (errMsg.includes('ssl hand shake error') || errMsg.includes('certificate')) {
+    return '上传失败：证书校验异常，请检查 HTTPS 证书配置';
+  }
+
+  if (errMsg.includes('timeout')) {
+    return '上传超时，请稍后重试';
+  }
+
+  return buildNetworkErrorMessage(baseUrl);
+}
 
 // ========== 1. 底层请求封装 ==========
 
@@ -35,8 +75,9 @@ export function request(url, method = 'GET', data = {}, options = {}) {
   const token = wx.getStorageSync('token') || '';
 
   return new Promise((resolve, reject) => {
+    const baseUrl = BASE_URL;
     wx.request({
-      url: `${BASE_URL}${url}`,
+      url: `${baseUrl}${url}`,
       method,
       data,
       header: {
@@ -65,8 +106,8 @@ export function request(url, method = 'GET', data = {}, options = {}) {
         if (loading) {
           hideLoading();
         }
-        console.error(`请求失败 ${method} ${url}:`, err);
-        const errorMsg = '网络请求失败，请检查网络连接';
+        console.error(`请求失败 ${method} ${baseUrl}${url}:`, err);
+        const errorMsg = buildNetworkErrorMessage(baseUrl);
         if (showError) {
           showToast(errorMsg, 'none');
         }
@@ -99,6 +140,13 @@ export function put(url, data = {}, options = {}) {
   return request(url, 'PUT', data, options);
 }
 
+/**
+ * DELETE 请求
+ */
+export function del(url, data = {}, options = {}) {
+  return request(url, 'DELETE', data, options);
+}
+
 // ========== 业务 API 封装 ==========
 
 /**
@@ -106,6 +154,17 @@ export function put(url, data = {}, options = {}) {
  */
 export function login(data) {
   return post('/auth/login', data, { loadingText: '登录中...' });
+}
+
+/**
+ * 获取登录自动填充信息
+ */
+export function getLoginPrefill(phone, roles = []) {
+  return get('/auth/prefill', {
+    phone,
+    role: Array.isArray(roles) && roles.length > 0 ? roles[0] : '',
+    roles: JSON.stringify(Array.isArray(roles) ? roles : [])
+  }, { loading: false, showError: false });
 }
 
 /**
@@ -160,6 +219,13 @@ export function auditObservation(data) {
 }
 
 /**
+ * 删除听课记录
+ */
+export function deleteObservation(id) {
+  return post(`/observation/delete/${id}`, {}, { loadingText: '删除中...' });
+}
+
+/**
  * 获取首页统计数据
  */
 export function getStats(params) {
@@ -196,6 +262,13 @@ export function advanceImprovement(data) {
   return post('/improvement/advance', data, { loadingText: '提交中...' });
 }
 
+/**
+ * 删除持续改进记录
+ */
+export function deleteImprovement(id) {
+  return post(`/improvement/delete/${id}`, {}, { loadingText: '删除中...' });
+}
+
 // ========== 图片上传（直接上传到后端服务器） ==========
 
 /**
@@ -215,8 +288,9 @@ export function uploadImage(filePath, options = {}) {
 
   return new Promise((resolve, reject) => {
     const token = wx.getStorageSync('token') || '';
+    const baseUrl = BASE_URL;
     wx.uploadFile({
-      url: `${BASE_URL}/upload`,
+      url: `${baseUrl}/upload`,
       filePath,
       name: 'file',
       header: {
@@ -225,6 +299,14 @@ export function uploadImage(filePath, options = {}) {
       success: (res) => {
         if (loading) {
           hideLoading();
+        }
+        if (res.statusCode !== 200) {
+          const errorMsg = buildUploadStatusMessage(res.statusCode, baseUrl);
+          if (showError) {
+            showToast(errorMsg, 'none');
+          }
+          reject(new Error(errorMsg));
+          return;
         }
         try {
           const result = JSON.parse(res.data);
@@ -247,10 +329,11 @@ export function uploadImage(filePath, options = {}) {
         if (loading) {
           hideLoading();
         }
+        const errorMsg = buildUploadFailMessage(err, baseUrl);
         if (showError) {
-          showToast('上传失败', 'none');
+          showToast(errorMsg, 'none');
         }
-        reject(err);
+        reject(new Error(errorMsg));
       }
     });
   });

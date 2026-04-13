@@ -97,46 +97,98 @@
   flex: none;
 }
 
+.sheet-cell.value.schedule-cell {
+  flex: 1.45;
+  padding: 18rpx;
+}
+
+.sheet-cell.label.lesson-label {
+  width: 120rpx;
+}
+
+.sheet-cell.value.lesson-cell {
+  width: 250rpx;
+  flex: none;
+  padding: 18rpx;
+}
+
 .sheet-cell.value.grow {
   flex: 1;
 }
 
-.date-inline {
+.schedule-grid {
+  width: 100%;
+}
+
+.schedule-card {
+  min-height: 96rpx;
+  padding: 16rpx 18rpx;
+  border: 2rpx solid #dbe4f0;
+  border-radius: 20rpx;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.schedule-label {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 1rpx;
+}
+
+.schedule-date {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  width: 100%;
-  min-height: 88rpx;
-  font-size: 28rpx;
+  gap: 12rpx;
+  margin-top: 12rpx;
+  min-height: 56rpx;
   color: #0f172a;
 }
 
-.date-inline.placeholder {
+.schedule-date.placeholder .schedule-date-text {
   color: #94a3b8;
 }
 
-.date-unit {
-  margin-right: 10rpx;
+.schedule-date-text {
+  font-size: 30rpx;
+  font-weight: 600;
 }
 
-.date-weekday {
-  margin-left: 12rpx;
+.schedule-weekday-badge {
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: #dbeafe;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #1d4ed8;
 }
 
-.lesson-inline {
+.schedule-lesson {
   display: flex;
   align-items: center;
-  width: 100%;
-  font-size: 28rpx;
-  color: #0f172a;
+  gap: 10rpx;
+  margin-top: 12rpx;
 }
 
-.lesson-input {
-  flex: 1;
-  height: 72rpx;
-  margin: 0 12rpx;
+.schedule-lesson-prefix,
+.schedule-lesson-suffix {
   font-size: 28rpx;
+  font-weight: 600;
+  color: #334155;
+}
+
+.schedule-lesson-input {
+  flex: 1;
+  height: 64rpx;
+  padding: 0 14rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid #bfdbfe;
+  background: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
   text-align: center;
+  color: #0f172a;
 }
 
 .cell-input {

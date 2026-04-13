@@ -3,9 +3,9 @@
  * 持续改进任务详情页
  */
 
-import { getImprovementDetail } from '../../../utils/request.js';
-import { showToast, formatDate, previewImage } from '../../../utils/util.js';
-import { IMPROVEMENT_STAGE, USER_ROLE, IMPROVEMENT_STAGE_TEXT, hasRole } from '../../../utils/constants.js';
+import { getImprovementDetail, deleteImprovement } from '../../../utils/request.js';
+import { showToast, showConfirm, formatDate, previewImage } from '../../../utils/util.js';
+import { IMPROVEMENT_STAGE, USER_ROLE, IMPROVEMENT_STAGE_TEXT, hasRole, hasAnyRole } from '../../../utils/constants.js';
 
 const app = getApp();
 
@@ -100,6 +100,20 @@ Page({
       });
     }
 
+    // 删除权限：发起人（从history中判断）或管理员可以删除。已闭环的非管理员不能删
+    const submitEntry = (task.stageHistory || []).find(item => item.action === 'submit');
+    const isCreator = submitEntry && Number(submitEntry.operatorId) === Number(uid);
+    const isAdmin = hasAnyRole(userInfo, [USER_ROLE.ADMIN]);
+    const isCompleted = task.currentStage === IMPROVEMENT_STAGE.COMPLETED;
+
+    if (isAdmin || (isCreator && !isCompleted)) {
+      buttons.push({
+        text: '删除记录',
+        action: 'delete',
+        class: 'danger'
+      });
+    }
+
     return buttons;
   },
 
@@ -129,6 +143,22 @@ Page({
           url: `/pages/improvement/supervisor-review/supervisor-review?id=${this.data.taskId}&role=${operatorRole || ''}`
         });
         break;
+      case 'delete':
+        this.handleDeleteTask();
+        break;
+    }
+  },
+
+  async handleDeleteTask() {
+    const confirmed = await showConfirm('删除后无法恢复，确认删除该改进记录吗？', '确认删除');
+    if (!confirmed) return;
+
+    try {
+      await deleteImprovement(this.data.taskId);
+      showToast('删除成功', 'success');
+      setTimeout(() => wx.navigateBack(), 1000);
+    } catch (err) {
+      console.error('删除失败:', err);
     }
   }
 });

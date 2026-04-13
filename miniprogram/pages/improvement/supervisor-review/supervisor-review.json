@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "督导审核"
+  "usingComponents": {
+    "image-uploader": "/components/image-uploader/image-uploader"
+  },
+  "navigationBarTitleText": "学校督导复核"
 }

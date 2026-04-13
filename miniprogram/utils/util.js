@@ -254,7 +254,6 @@ export function getRolePermissions(role) {
     },
     // 教师权限
     teacher: {
-      canViewOwnObservation: true,
       canReviseImprovement: true
     },
     // 管理员权限
@@ -271,6 +270,8 @@ export function getRolePermissions(role) {
     },
     // 二级学院领导权限
     department_leader: {
+      canCreateObservation: true,
+      canEditOwnObservation: true,
       canViewDepartmentImprovements: true,
       canReviseImprovement: true
     }

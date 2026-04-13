@@ -3,9 +3,9 @@
  * 听课记录详情页
  */
 
-import { getObservationDetail } from '../../../utils/request.js';
-import { showToast, formatDate, previewImage } from '../../../utils/util.js';
-import { OBSERVATION_STATUS, USER_ROLE, hasRole } from '../../../utils/constants.js';
+import { getObservationDetail, deleteObservation } from '../../../utils/request.js';
+import { showToast, showConfirm, formatDate, previewImage } from '../../../utils/util.js';
+import { OBSERVATION_STATUS, USER_ROLE, hasAnyRole } from '../../../utils/constants.js';
 
 const app = getApp();
 
@@ -57,6 +57,7 @@ Page({
     record: null,
     statusText: '',
     canEdit: false,
+    canDelete: false,
     canAudit: false
   },
 
@@ -108,15 +109,25 @@ Page({
         reviewTimeFormatted: res.reviewTime ? formatDate(res.reviewTime) : ''
       };
 
-      const canEdit = Number(res.supervisorId) === Number(userInfo.id)
-        && hasRole(userInfo, USER_ROLE.SUPERVISOR)
-        && res.status === OBSERVATION_STATUS.REJECTED;
-      const canAudit = hasRole(userInfo, USER_ROLE.COLLEGE) && res.status === OBSERVATION_STATUS.PENDING;
+      const isOwner = Number(res.supervisorId) === Number(userInfo.id);
+      const isAdmin = hasAnyRole(userInfo, [USER_ROLE.ADMIN]);
+
+      // 待审核和被驳回状态下创建者可编辑；管理员始终可编辑（已通过除外）
+      const canEdit = (isOwner && res.status !== OBSERVATION_STATUS.APPROVED)
+        || (isAdmin && res.status !== OBSERVATION_STATUS.APPROVED);
+
+      // 创建者可删除待审核/被驳回的记录；管理员可删除任何记录
+      const canDelete = (isOwner && res.status !== OBSERVATION_STATUS.APPROVED)
+        || isAdmin;
+
+      const canAudit = hasAnyRole(userInfo, [USER_ROLE.COLLEGE, USER_ROLE.ADMIN])
+        && res.status === OBSERVATION_STATUS.PENDING;
 
       this.setData({
         record,
         statusText: this.getStatusText(res.status),
         canEdit,
+        canDelete,
         canAudit
       });
     } catch (err) {
@@ -153,6 +164,22 @@ Page({
     wx.navigateTo({
       url: `/pages/observation/create/create?id=${this.data.recordId}`
     });
+  },
+
+  /**
+   * 删除记录
+   */
+  async handleDelete() {
+    const confirmed = await showConfirm('删除后无法恢复，确认删除该听课记录吗？', '确认删除');
+    if (!confirmed) return;
+
+    try {
+      await deleteObservation(this.data.recordId);
+      showToast('删除成功', 'success');
+      setTimeout(() => wx.navigateBack(), 1000);
+    } catch (err) {
+      console.error('删除失败:', err);
+    }
   },
 
   /**

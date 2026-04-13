@@ -19,7 +19,7 @@
           <text class="info-value">{{item.teacherName}}</text>
         </view>
         <view class="info-row">
-          <text class="info-label">督导教师：</text>
+          <text class="info-label">听课人：</text>
           <text class="info-value">{{item.supervisorName}}</text>
         </view>
         <view class="info-row">

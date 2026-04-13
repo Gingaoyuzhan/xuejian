@@ -6,8 +6,8 @@
     <view class="login-prompt">
       <text class="login-prompt-icon">👤</text>
       <text class="login-prompt-title">个人中心</text>
-      <text class="login-prompt-desc">登录后可管理个人信息和快捷功能</text>
-      <button class="login-prompt-btn" bindtap="goToLogin">登录 / 注册</button>
+      <text class="login-prompt-desc">可先浏览首页和功能服务，需保存个人身份与快捷入口时再自愿登录</text>
+      <button class="login-prompt-btn" bindtap="goToLogin">按需登录 / 注册</button>
     </view>
   </block>
 

@@ -10,16 +10,16 @@
 
   <view class="loop-card">
     <view class="loop-title">闭环循环流程</view>
-    <view class="loop-tip">高教中心或督导退回时，流程将回流到“二级处理”重新整改。</view>
+    <view class="loop-tip">高教中心或学校督导退回时，流程将回流到“二级处理”重新整改。</view>
     <view class="loop-grid">
       <view class="loop-node {{task.currentStage === 'submitted' ? 'active' : ''}}">
         <text class="loop-node-title">一级发起</text>
-        <text class="loop-node-role">督导 / 高教中心</text>
+        <text class="loop-node-role">学校督导 / 高教中心</text>
       </view>
       <view class="loop-arrow horizontal">→</view>
       <view class="loop-node {{task.currentStage === 'revising' ? 'active' : ''}}">
         <text class="loop-node-title">二级处理</text>
-        <text class="loop-node-role">二级学院领导 / 教师</text>
+        <text class="loop-node-role">校领导 / 教师</text>
       </view>
 
       <view class="loop-arrow corner-right">↓</view>
@@ -30,8 +30,8 @@
       <view class="loop-arrow corner-left">↓</view>
 
       <view class="loop-node {{task.currentStage === 'supervisor_review' ? 'active' : ''}}">
-        <text class="loop-node-title">督导复核</text>
-        <text class="loop-node-role">督导</text>
+        <text class="loop-node-title">学校督导复核</text>
+        <text class="loop-node-role">学校督导</text>
       </view>
       <view class="loop-arrow horizontal reverse">←</view>
       <view class="loop-node {{task.currentStage === 'college_check' ? 'active' : ''}}">
@@ -65,7 +65,7 @@
     <view class="content-box">{{task.formData.improvementStatus || '待二级处理填写'}}</view>
 
     <view class="sheet-section-title">复查情况</view>
-    <view class="content-box">{{task.formData.reviewStatus || '待高教中心 / 督导填写'}}</view>
+    <view class="content-box">{{task.formData.reviewStatus || '待高教中心 / 学校督导填写'}}</view>
   </view>
 
   <view class="sheet-card" wx:if="{{task.formData.issueImages && task.formData.issueImages.length > 0}}">
@@ -118,7 +118,7 @@
 
   <view class="sheet-card">
     <view class="sheet-title">循环流转记录</view>
-    <view class="history-list">
+    <view class="history-list" wx:if="{{task.canViewHistory}}">
       <view class="history-item" wx:for="{{task.stageHistory}}" wx:key="index">
         <view class="history-dot"></view>
         <view class="history-content">
@@ -129,11 +129,12 @@
         </view>
       </view>
     </view>
+    <view class="content-box" wx:else>历史流转意见涉及敏感数据，当前仅管理员可查看。</view>
   </view>
 
   <view class="action-bar" wx:if="{{actionButtons.length > 0}}">
     <button
-      class="action-btn"
+      class="action-btn {{item.class || 'primary'}}"
       wx:for="{{actionButtons}}"
       wx:key="action"
       data-action="{{item.action}}"
